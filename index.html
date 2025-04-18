@@ -36,8 +36,9 @@
           height: 600px;
           border-radius: 6px;
       }
-      .course-circle,.course-circle-outline {
+      .course-circle,.course-circle-outline, .course-expired, .course-expired-approximate {
           display: inline-block;
+          position: relative;
           width: 20px;
           height: 20px;
           border-radius: 50%;
@@ -50,6 +51,27 @@
       }
       .course-circle {
           background-color: #AB2129;
+      }
+      .course-expired {
+          background-color: #AB2129;
+      }
+      .course-expired-approximate {
+          border: 2px solid #AB2129;
+      }
+
+      .course-expired-approximate::before, .course-expired::before {
+          content: 'X';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          color: white;
+          font-size: 14px;
+          font-weight: bold;
+          line-height: 1;
+      }
+      .course-expired-approximate::before {
+          color: #AB2129;
       }
       .maplibregl-popup {
           max-width: 300px;
@@ -91,8 +113,14 @@
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">Legend</h5>
-          <p class="mb-0"><span class="course-circle"></span> Actual street location of the calibration course (2014 onward)</p>
-          <p class="mb-2"><span class="course-circle-outline"></span> Approximate location near the center of the town listed</p>
+          <ul class="list-unstyled mb-0">
+            <li><span class="course-circle"></span> Actual street location of the calibration course (2014 onward)</li>
+            <li><span class="course-circle-outline"></span> Approximate location near the center of the town listed</li>
+            <li><span class="course-expired"></span><span class="course-expired-approximate"></span> Course expired</li>
+          </ul>
+
+          <p class="mb-2"></p>
+
         </div>
       </div>
     </div>
@@ -132,6 +160,7 @@
   </div>
   <footer class="my-5 pt-5 text-muted text-center text-small">
     <div class="mb-1 row">
+      <p>Data last updated March 2025</p>
       <ul class="list-inline mb-2 d-flex justify-content-center gap-2">
         <li><a href="https://certifiedroadraces.com/search/">Course Database</a></li>
         <li><a href="https://rrtc.net/Calibrations_map/calibration_map.html">Original Cal Course Map</a></li>
@@ -193,6 +222,7 @@
             const tableData = calibrationCourses;
             const states = new Set();
             const locations = new Set();
+            const currentYear = new Date().getFullYear();
 
 
             for (const [id, course] of Object.entries(tableData)) {
@@ -205,7 +235,7 @@
                     locations.add(course.city + ', ' + course.state);
                 }
 
-                // Create feature for map
+                const courseYear = parseInt("20" + course.certificateId.substring(2,4))
                 features.push({
                     type: 'Feature',
                     geometry: {
@@ -220,12 +250,13 @@
                         state: course.state,
                         certificateId: course.certificateId,
                         certificateLink: course.certificateLink,
-                        measurer: course.measurer
+                        measurer: course.measurer,
+                        expired: currentYear > (courseYear + 10)
                     }
                 });
             }
 
-            // Add courses to map when loaded
+
             map.on('load', function() {
                 map.getSource("courses").setData({
                     type: 'FeatureCollection',
@@ -233,7 +264,6 @@
                 });
 
 
-                // Create popups for courses
                 const popup = new maplibregl.Popup({
                     closeButton: true,
                     closeOnClick: true,
@@ -262,7 +292,6 @@
                         .addTo(map);
                 });
 
-                // Hide popup on mouse leave
                 map.on('mouseleave', 'unclustered-point', function() {
                     map.getCanvas().style.cursor = '';
                     if (popup.pinned) {
@@ -289,7 +318,7 @@
                     popup.pinned = true;
                 });
 
-                // Handle cluster clicks
+
                 map.on('click', 'clusters', function(e) {
                     const features = map.queryRenderedFeatures(e.point, {
                         layers: ['clusters']

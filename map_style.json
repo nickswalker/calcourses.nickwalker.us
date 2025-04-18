@@ -7012,20 +7012,36 @@
         ],
         "circle-radius": [
           "interpolate",
-          [
-            "linear"
-          ],
-          [
-            "zoom"
-          ],
-          4,
-          4,
-          6,
-          8
+          ["linear"],
+          ["zoom"],
+          4, 4,
+          6, 8
         ],
         "circle-stroke-width": 2,
         "circle-stroke-color": "#AB2129"
       }
+    },
+    {
+      "id": "unclustered-point-expired-label",
+      "type": "symbol",
+      "source": "courses",
+      "filter": ["all",
+        ["!", ["has", "point_count"]],
+        ["==", ["get", "expired"], true]
+      ],
+      "layout": {
+        "text-field": "X",
+        "text-font": ["Noto Sans Bold"],
+        "text-size": 12
+      },
+      "paint": {
+        "text-color": [
+          "case",
+          ["get", "approximate"], "#AB2129",
+          "#FFFFFF"
+        ]
+      }
     }
+
   ]
 }
