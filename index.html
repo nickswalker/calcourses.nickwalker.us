@@ -188,6 +188,31 @@
 <a href="https://www.google.com/maps/dir/?api=1&destination=${feature.geometry.lon},${feature.geometry.lat}&travelmode=driving">Driving directions to course</a></p>`;
     }
 
+
+
+    class HomeControl {
+        onAdd(map){
+            this.map = map;
+            this.container = document.createElement('div');
+            this.container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+            this.container.textContent = 'Home';
+
+            this.container.innerHTML =
+                '<div class="tools-box">' +
+                '<button>' +
+                '<span class="maplibregl-ctrl-icon" aria-hidden="true" title="Zoom to fit"></span>' +
+                '</button>' +
+                '</div>';
+            this.container.querySelector("span").style.backgroundImage = "url('fullscreen-frame-icon.svg')"
+            return this.container;
+        }
+        onRemove(){
+            this.container.parentNode.removeChild(this.container);
+            this.map = undefined;
+        }
+    }
+
+
     document.addEventListener('DOMContentLoaded', async function() {
         try {
             const response = await fetch('calibration_courses.json');
@@ -216,8 +241,8 @@
                 },
                 trackUserLocation: true
             }), 'top-right');
-
-
+            const homeControl = new HomeControl();
+            map.addControl(homeControl);
             const features = [];
             const tableData = calibrationCourses;
             const states = new Set();
@@ -499,6 +524,9 @@
                         });
                     }
                 }
+                homeControl.container.addEventListener('click', (e) => {
+                    zoomToFilteredFeatures();
+                })
             });
         } catch (error) {
             console.error('Error initializing map or loading data:', error);
