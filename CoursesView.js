@@ -44,7 +44,7 @@ class HomeControl {
         </button>
       </div>
     `;
-        this.container.querySelector("span").style.backgroundImage = "url('fullscreen-frame-icon.svg')";
+        this.container.querySelector("span").style.backgroundImage = "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDMwIDMwIj4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xIHsKICAgICAgICBmaWxsOiAjMzMzOwogICAgICAgIHN0cm9rZS13aWR0aDogMHB4OwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xOCw4aDNjLjYsMCwxLC40LDEsMXYzYzAsLjYuNCwxLDEsMWgxYy42LDAsMS0uNCwxLTF2LTZjMC0uNi0uNC0xLTEtMWgtNmMtLjYsMC0xLC40LTEsMXYxYzAsLjYuNCwxLDEsMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik04LDEydi0zYzAtLjYuNC0xLDEtMWgzYy42LDAsMS0uNCwxLTF2LTFjMC0uNi0uNC0xLTEtMWgtNmMtLjYsMC0xLC40LTEsMXY2YzAsLjYuNCwxLDEsMWgxYy42LDAsMS0uNCwxLTFaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjIsMTh2M2MwLC42LS40LDEtMSwxaC0zYy0uNiwwLTEsLjQtMSwxdjFjMCwuNi40LDEsMSwxaDZjLjYsMCwxLS40LDEtMXYtNmMwLS42LS40LTEtMS0xaC0xYy0uNiwwLTEsLjQtMSwxWiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEyLDIyaC0zYy0uNiwwLTEtLjQtMS0xdi0zYzAtLjYtLjQtMS0xLTFoLTFjLS42LDAtMSwuNC0xLDF2NmMwLC42LjQsMSwxLDFoNmMuNiwwLDEtLjQsMS0xdi0xYzAtLjYtLjQtMS0xLTFaIi8+Cjwvc3ZnPg==')";
         return this.container;
     }
 
@@ -64,7 +64,9 @@ function featureToDescription(feature) {
         expiredText = "(Expired)";
     }
     return `
+<h6 class="float-end">${properties.courseLength}${properties.units}</h6>
     <h4 class="lh-1">${properties.name} <span class="text-secondary"> ${expiredText}</span></h4>
+    
     <p class="lh-1 d-flex flex-column gap-1">
       <a href="${properties.certificateLink}">${properties.certificateId}</a>
       ${properties.city}, ${properties.state}<br>
@@ -233,10 +235,11 @@ export class CoursesView extends LitElement {
             }
 
             const courseYear = parseInt("20" + properties.certificateId.substring(2, 4));
-            this.calibrationCourses[id].properties.expired = currentYear > (courseYear + 10)
-            this.calibrationCourses[id].properties.courseLengthMeters = this.calibrationCourses[id].properties.courseLength
-            if (this.calibrationCourses[id].properties.units === "ft") {
-                this.calibrationCourses[id].properties.courseLengthMeters = this.calibrationCourses[id].properties.courseLength * .3048
+            course.properties.year = courseYear;
+            course.properties.expired = currentYear > (courseYear + 10)
+            course.properties.courseLengthMeters = course.properties.courseLength
+            if (course.properties.units === "ft") {
+                course.properties.courseLengthMeters = course.properties.courseLength * .3048
             }
         }
 
@@ -300,24 +303,12 @@ export class CoursesView extends LitElement {
                 const feature = e.features[0];
                 const coordinates = feature.geometry.coordinates.slice();
 
-                // Ensure popup appears over the feature
-                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-                }
-
                 const popupNode = document.createElement('div');
                 popupNode.className = 'course-popup';
 
                 // Render the HTML description into the node
                 const description = featureToDescription(feature);
-                if (typeof description === 'string') {
-                    popupNode.innerHTML = description;
-                } else {
-                    // If it's a lit-html template, render it
-                    import('lit').then(({ render }) => {
-                        render(description, popupNode);
-                    });
-                }
+                popupNode.innerHTML = description;
 
                 this.popup
                     .setLngLat(coordinates)
@@ -340,24 +331,10 @@ export class CoursesView extends LitElement {
                 if (this.openCourse === clickedId ) return;
                 this.openCourse = clickedId;
                 const coordinates = e.features[0].geometry.coordinates.slice();
-
-                // Ensure popup appears over the feature
-                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-                }
-
                 const popupNode = document.createElement('div');
                 popupNode.className = 'course-popup';
                 const description = featureToDescription(e.features[0]);
-                if (typeof description === 'string') {
-                    popupNode.innerHTML = description;
-                } else {
-                    // If it's a lit-html template, render it
-                    import('lit').then(({ render }) => {
-                        render(description, popupNode);
-                    });
-                }
-
+                popupNode.innerHTML = description;
                 this.popup
                     .setLngLat(coordinates)
                     .setDOMContent(popupNode)
@@ -383,25 +360,28 @@ export class CoursesView extends LitElement {
                         center: features[0].geometry.coordinates,
                         zoom: clusterExpansionZoom
                     });
-                    if (clusterExpansionZoom > this.map.getMaxZoom()) {
-                        coursesSource.getClusterLeaves(clusterId).then((leaves) => {
-                            const coordinates = features[0].geometry.coordinates;
-                            let description = leaves.map(leave => featureToDescription(leave)
-                            );
-                            description = description.reduce((a, b) => a + "<hr/>" + b);
-                            const popupNode = document.createElement('div');
-                            popupNode.className = 'course-popup';
-                            popupNode.innerHTML = description;
-
-
-                            this.popup
-                                .setLngLat(coordinates)
-                                .setDOMContent(popupNode)
-                            if (!this.popup.isOpen()) {
-                                this.popup.addTo(this.map)
-                            }
-                        })
+                    if (clusterExpansionZoom <= this.map.getMaxZoom()) {
+                        return
                     }
+                    coursesSource.getClusterLeaves(clusterId).then((leaves) => {
+                        const coordinates = features[0].geometry.coordinates;
+
+                        let description = leaves.sort((a, b) => a.properties.year < b.properties.year).map(leave => featureToDescription(leave)
+                        );
+                        description = description.reduce((a, b) => a + "<hr/>" + b);
+                        const popupNode = document.createElement('div');
+                        popupNode.className = 'course-popup';
+                        popupNode.innerHTML = description;
+
+
+                        this.popup
+                            .setLngLat(coordinates)
+                            .setDOMContent(popupNode)
+                        if (!this.popup.isOpen()) {
+                            this.popup.addTo(this.map)
+                        }
+                    })
+
                 });
             });
 
@@ -443,6 +423,7 @@ export class CoursesView extends LitElement {
             index: "properties.certificateId",
             pagination: true,
             paginationSize: 15,
+            layout: "fitDataFill",
             paginationSizeSelector: [10, 15, 25, 50, 100],
             placeholder: "No Data Available",
             groupBy: "properties.state", // Group by state
@@ -462,12 +443,12 @@ export class CoursesView extends LitElement {
                         return id ? `<a href="${link}" target="_blank">${id}</a>` : "";
                     }
                 },
-                {title: "Course Name", field: "properties.name", sorter: "string", headerSort: true, headerFilter: true, formatter: function(cell) {
+                {title: "Course Name", field: "properties.nameAbbreviated", sorter: "string", headerSort: true, headerFilter: true, formatter: function(cell) {
                     const data = cell.getRow().getData();
                     if (data.properties.expired) {
-                        return data.properties.name + " <span class='text-secondary'>(Expired)</span>";
+                        return data.properties.nameAbbreviated + " <span class='text-secondary'>(Expired)</span>";
                     }
-                    else return data.properties.name;
+                    else return `<span title="${data.properties.name}">${data.properties.nameAbbreviated}</span>`;
                     }},
                 {title: "City", field: "properties.city", sorter: "string", headerSort: true, headerFilter: true},
                 {title: "State", field: "properties.state", sorter: "string", headerSort: true, headerFilter: true},
@@ -666,16 +647,7 @@ export class CoursesView extends LitElement {
         const popupNode = document.createElement('div');
         popupNode.className = 'course-popup';
         const description = featureToDescription(targetFeature);
-
-        if (typeof description === 'string') {
-            popupNode.innerHTML = description;
-        } else {
-            // If it's a lit-html template, render it
-            import('lit').then(({ render }) => {
-                render(description, popupNode);
-            });
-        }
-
+        popupNode.innerHTML = description;
         this.popup
             .setLngLat(coordinates)
             .setDOMContent(popupNode);
@@ -718,7 +690,7 @@ export class CoursesView extends LitElement {
     render() {
         return html`
       <div class="container">
-        <div class="btn-toolbar gap-3 mb-3" role="toolbar">
+        <div class="btn-toolbar gap-2 mb-2 row align-items-center" role="toolbar">
           <div class="input-group">
             <label class="input-group-text" for="states-select">State</label>
             <select class="form-select" id="states-select" @change=${this.handleStateChange}>
@@ -739,19 +711,19 @@ export class CoursesView extends LitElement {
             </select>
           </div>
 
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="include-expired" value="include-expired" .checked="${!this.isFilterActive('properties.expired', "=", false)}" @change=${this.handleIncludeExpired}>
-            <label class="form-check-label" for="include-expired">
-              Include Expired
-            </label>
+          <div class="col-auto">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="include-expired" value="include-expired" .checked="${!this.isFilterActive('properties.expired', "=", false)}" @change=${this.handleIncludeExpired}>
+                <label class="form-check-label" for="include-expired">
+                  Include Expired
+                </label>
+              </div>
           </div>
         </div>
-
-
         
         <div class="map-table-container">
           <div id="map"></div>
-          <div id="courses-table"></div>
+          <div id="courses-table" class="table-sm"></div>
         </div>
       </div>
     `;

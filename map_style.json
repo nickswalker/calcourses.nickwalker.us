@@ -17,8 +17,8 @@
       "type": "geojson",
       "data": "",
       "cluster": true,
-      "clusterMaxZoom": 25,
-      "clusterRadius": 50
+      "clusterMaxZoom": 18,
+      "clusterRadius": 40
     }
   },
   "sprite": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm",
@@ -7015,7 +7015,8 @@
           ["linear"],
           ["zoom"],
           6, 4,
-          12, 8
+          12, 6,
+          25, 8
         ],
         "circle-stroke-width": 2,
         "circle-stroke-color": "#AB2129"
@@ -7031,8 +7032,16 @@
       ],
       "layout": {
         "text-field": "X",
+        "text-line-height": 1.0,
+        "text-allow-overlap": true,
         "text-font": ["Noto Sans Bold"],
-        "text-size": 12
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          6, 9,
+          10, 12
+        ]
       },
       "paint": {
         "text-color": [
@@ -7041,7 +7050,33 @@
           "#FFFFFF"
         ]
       }
+    },
+    {
+      "id": "course-labels",
+      "type": "symbol",
+      "source": "courses",
+      "filter": ["!", ["has", "point_count"]],
+      "layout": {
+        "text-font": ["Noto Sans Bold"],
+        "text-field": [
+          "format",
+          ["get", "nameAbbreviated"], {},
+          "\n", {},
+          ["concat", ["to-string", ["get", "courseLength"]], ["get", "units"]],
+          { "text-font": ["literal", ["Noto Sans Regular"]]}
+        ],
+        "text-offset": [0, 0.75],
+        "text-line-height": 1.0,
+        "text-anchor": "top",
+        "text-size": 12
+      },
+      "paint": {
+        "text-color": "#78171c",
+        "text-halo-color": "white",
+        "text-halo-width": 1,
+        "text-opacity": ["case", ["get", "expired"], 0.85, 1.0]
+      },
+      "minzoom": 8
     }
-
   ]
 }
