@@ -17,7 +17,7 @@
       "type": "geojson",
       "data": "",
       "cluster": true,
-      "clusterMaxZoom": 8,
+      "clusterMaxZoom": 25,
       "clusterRadius": 50
     }
   },
@@ -7014,8 +7014,8 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          4, 4,
-          6, 8
+          6, 4,
+          12, 8
         ],
         "circle-stroke-width": 2,
         "circle-stroke-color": "#AB2129"
