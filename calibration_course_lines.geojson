@@ -7,17 +7,37 @@
         "type": "LineString",
         "coordinates": [
           [
-            -122.2677132432537,
-            47.64229087622516
+            -122.26940577525231,
+            47.64256530619468
           ],
           [
-            -122.26205302591731,
-            47.641431710631394
+            -122.26518535114572,
+            47.64192125575204
           ]
         ]
       },
       "properties": {
-        "certificateId": "WA24019RMB"
+        "certificateId": "WA23018RMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.26940577525231,
+            47.64256530619468
+          ],
+          [
+            -122.26518535114572,
+            47.64192125575204
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "WA24019RMB",
+        "certificateLink": "https://certifiedroadraces.com/certificate/?type=c&id=512"
       }
     }
   ]

@@ -221,6 +221,14 @@ def patch_geojson_with_additional_data(original_geojson, additional_data_file):
                     "properties": {"certificateId": cert_id}
                 }
 
+                # Compute the point by averaging the coordinates
+                coords = additional_feature['geometry'].get('coordinates', None)
+                if coords:
+                    avg_longitude = sum(coord[0] for coord in coords) / len(coords)
+                    avg_latitude = sum(coord[1] for coord in coords) / len(coords)
+                    feature["geometry"]["coordinates"] = [avg_longitude, avg_latitude]
+
+
                 # Update with any additional properties
                 if 'properties' in additional_feature:
                     for prop_key, prop_value in additional_feature['properties'].items():

@@ -6970,6 +6970,37 @@
       }
     },
     {
+      "id": "course-routes",
+      "type": "line",
+      "source": "course-lines",
+      "filter": [
+        "all",
+        ["!has", "point_count"],
+        ["==", "$type", "LineString"]
+      ],
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "line-color": "#AB2129",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          12, 2,
+          16, 4
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10, 0,
+          12, ["case", ["get", "expired"], 0.6, 0.8]
+        ]
+      },
+      "minzoom": 12
+    },
+    {
       "id": "clusters",
       "type": "circle",
       "source": "course-points",
@@ -7082,37 +7113,6 @@
         "text-opacity": ["case", ["get", "expired"], 0.85, 1.0]
       },
       "minzoom": 8
-    },
-    {
-      "id": "course-routes",
-      "type": "line",
-      "source": "course-lines",
-      "filter": [
-        "all",
-        ["!has", "point_count"],
-        ["==", "$type", "LineString"]
-      ],
-      "layout": {
-        "visibility": "visible"
-      },
-      "paint": {
-        "line-color": "#AB2129",
-        "line-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          12, 2,
-          16, 4
-        ],
-        "line-opacity": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          10, 0,
-          12, ["case", ["get", "expired"], 0.6, 0.8]
-        ]
-      },
-      "minzoom": 12
     }
   ]
 }

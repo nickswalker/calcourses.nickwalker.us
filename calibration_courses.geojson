@@ -24338,8 +24338,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -122.270147,
-          47.642412
+          -122.26729556319901,
+          47.64224328097336
         ]
       },
       "properties": {
@@ -24404,8 +24404,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -122.255756,
-          47.621547
+          -122.26729556319901,
+          47.64224328097336
         ]
       },
       "properties": {
@@ -24417,7 +24417,7 @@
         "courseLength": 320.03,
         "units": "m",
         "measurer": "Nick Walker",
-        "certificateLink": "",
+        "certificateLink": "https://certifiedroadraces.com/certificate/?type=c&id=512",
         "approximate": false
       }
     },
