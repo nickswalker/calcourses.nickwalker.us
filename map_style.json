@@ -13,12 +13,16 @@
       "type": "vector",
       "url": "https://tiles.openfreemap.org/planet"
     },
-    "courses": {
+    "course-points": {
       "type": "geojson",
       "data": "",
       "cluster": true,
       "clusterMaxZoom": 18,
       "clusterRadius": 40
+    },
+    "course-lines": {
+      "type": "geojson",
+      "data": ""
     }
   },
   "sprite": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm",
@@ -6968,7 +6972,7 @@
     {
       "id": "clusters",
       "type": "circle",
-      "source": "courses",
+      "source": "course-points",
       "filter": ["has", "point_count"],
       "paint": {
         "circle-color": "#AB2129",
@@ -6988,7 +6992,7 @@
     {
       "id": "cluster-count",
       "type": "symbol",
-      "source": "courses",
+      "source": "course-points",
       "filter": ["has", "point_count"],
       "layout": {
         "text-field": ["get", "point_count"],
@@ -7002,7 +7006,7 @@
     {
       "id": "unclustered-point",
       "type": "circle",
-      "source": "courses",
+      "source": "course-points",
       "filter": ["!", ["has", "point_count"]],
       "paint": {
         "circle-color": [
@@ -7022,10 +7026,11 @@
         "circle-stroke-color": "#AB2129"
       }
     },
+
     {
       "id": "unclustered-point-expired-label",
       "type": "symbol",
-      "source": "courses",
+      "source": "course-points",
       "filter": ["all",
         ["!", ["has", "point_count"]],
         ["==", ["get", "expired"], true]
@@ -7054,7 +7059,7 @@
     {
       "id": "course-labels",
       "type": "symbol",
-      "source": "courses",
+      "source": "course-points",
       "filter": ["!", ["has", "point_count"]],
       "layout": {
         "text-font": ["Noto Sans Bold"],
@@ -7077,6 +7082,37 @@
         "text-opacity": ["case", ["get", "expired"], 0.85, 1.0]
       },
       "minzoom": 8
+    },
+    {
+      "id": "course-routes",
+      "type": "line",
+      "source": "course-lines",
+      "filter": [
+        "all",
+        ["!has", "point_count"],
+        ["==", "$type", "LineString"]
+      ],
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "line-color": "#AB2129",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          12, 2,
+          16, 4
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10, 0,
+          12, ["case", ["get", "expired"], 0.6, 0.8]
+        ]
+      },
+      "minzoom": 12
     }
   ]
 }

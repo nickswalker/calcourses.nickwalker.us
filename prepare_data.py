@@ -3,6 +3,7 @@ import csv
 from pathlib import Path
 import re
 
+
 def extract_url_from_anchor(html_string):
     pattern = r"<a\s+(?:[^>]*?\s+)?href=['\"]([^'\"]*)['\"]"
     match = re.search(pattern, html_string)
@@ -34,6 +35,7 @@ def remove_measurements(text):
     result = re.sub(measurement_pattern, '', text, flags=re.IGNORECASE)
 
     return result
+
 
 def format_measurements(text):
     # Pattern 1: Numbers followed by optional space/dash then metric units
@@ -75,7 +77,7 @@ def standardize_road_types(text):
         'square': 'Sq',
         'street': 'St',
         'terrace': 'Ter',
-        #'trail': 'Trl',
+        # 'trail': 'Trl',
         'turnpike': 'Tpke',
         'way': 'Way'
     }
@@ -114,6 +116,7 @@ def remove_unnecessary_periods(text):
     result = re.sub(abbrev_pattern, r'\1', result)
 
     return result
+
 
 def tsv_to_geojson(input_file):
     geojson = {
@@ -172,9 +175,101 @@ def tsv_to_geojson(input_file):
     return geojson
 
 
+def patch_geojson_with_additional_data(original_geojson, additional_data_file):
+    """
+    Patch the original GeoJSON with data from an additional GeoJSON file.
+    Don't patch over the geometry if types don't match.
+    Extract LineString geometries to a separate collection.
+    """
+    # Load the additional data
+    with open(additional_data_file, 'r', encoding='utf-8') as f:
+        additional_data = json.load(f)
+
+    # Create a new GeoJSON for LineString features
+    line_geojson = {
+        "type": "FeatureCollection",
+        "features": []
+    }
+
+    # Create a dictionary mapping certificateId to the additional feature for quick lookup
+    additional_features_dict = {}
+    for feature in additional_data.get('features', []):
+        cert_id = feature.get('properties', {}).get('certificateId')
+        if cert_id:
+            additional_features_dict[cert_id] = feature
+
+    # Keep track of which additional features we've processed
+    processed_additional_ids = set()
+
+    # Update the original features with the additional data
+    for feature in original_geojson.get('features', []):
+        cert_id = feature.get('properties', {}).get('certificateId')
+
+        if cert_id and cert_id in additional_features_dict:
+            additional_feature = additional_features_dict[cert_id]
+
+            # Extract the additional feature's geometry type
+            additional_geom_type = additional_feature.get('geometry', {}).get('type')
+            original_geom_type = feature.get('geometry', {}).get('type')
+
+            # If the additional feature has a LineString geometry, add it to the line collection
+            if additional_geom_type == 'LineString':
+                # Create a new feature for the line collection
+                line_feature = {
+                    "type": "Feature",
+                    "geometry": additional_feature['geometry'],
+                    "properties": {"certificateId": cert_id}
+                }
+
+                # Update with any additional properties
+                if 'properties' in additional_feature:
+                    for prop_key, prop_value in additional_feature['properties'].items():
+                        line_feature['properties'][prop_key] = prop_value
+
+                line_geojson['features'].append(line_feature)
+                print(f"Added LineString geometry for certificateId: {cert_id} to line collection")
+
+            # Update geometry only if types match
+            elif 'geometry' in additional_feature and additional_geom_type == original_geom_type:
+                feature['geometry'] = {**feature['geometry'], **additional_feature['geometry']}
+                print(f"Updated geometry for certificateId: {cert_id} (type: {original_geom_type})")
+
+            # Always update properties
+            if 'properties' in additional_feature:
+                for prop_key, prop_value in additional_feature['properties'].items():
+                    feature['properties'][prop_key] = prop_value
+                print(f"Updated properties for certificateId: {cert_id}")
+
+            processed_additional_ids.add(cert_id)
+
+    # Add any new features from additional data that weren't in the original
+    for cert_id, feature in additional_features_dict.items():
+        if cert_id in processed_additional_ids:
+            continue
+
+        geom_type = feature.get('geometry', {}).get('type')
+
+        # Add LineString features to the line collection
+        if geom_type == 'LineString':
+            line_geojson['features'].append(feature)
+            print(f"Added new LineString feature with certificateId: {cert_id} to line collection")
+        # Add other types to the original collection
+        elif ('geometry' in feature and
+              feature['geometry'].get('type') and
+              'coordinates' in feature['geometry']):
+            original_geojson['features'].append(feature)
+            print(f"Added new feature with certificateId: {cert_id} to original collection")
+        else:
+            print(f"Skipped adding new feature with certificateId: {cert_id} - incomplete geometry")
+
+    return original_geojson, line_geojson
+
+
 def main():
     input_file = "calibration_courses.tsv"
+    additional_data_file = "additional_data.geojson"
     output_file = "calibration_courses.geojson"
+    line_output_file = "calibration_course_lines.geojson"
 
     if not Path(input_file).exists():
         print(f"Error: Input file '{input_file}' not found.")
@@ -182,11 +277,26 @@ def main():
 
     geojson_data = tsv_to_geojson(input_file)
 
+    # Patch with additional data if available
+    if Path(additional_data_file).exists():
+        print(f"Patching with additional data from '{additional_data_file}'...")
+        geojson_data, line_geojson_data = patch_geojson_with_additional_data(geojson_data, additional_data_file)
+
+        # Write the line data to a separate file
+        with open(line_output_file, 'w', encoding='utf-8') as f:
+            json.dump(line_geojson_data, f, indent=2)
+        print(f"LineString geometries written to {line_output_file}")
+        print(f"Wrote {len(line_geojson_data['features'])} LineString features.")
+
+        print(f"Patching complete.")
+    else:
+        print(f"Note: Additional data file '{additional_data_file}' not found. Continuing without patching.")
+
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(geojson_data, f, indent=2)
 
-    print(f"Conversion complete. GeoJSON written to {output_file}")
-    print(f"Converted {len(geojson_data['features'])} features.")
+    print(f"Conversion complete. Point GeoJSON written to {output_file}")
+    print(f"Converted {len(geojson_data['features'])} point features.")
 
 
 if __name__ == "__main__":

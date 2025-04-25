@@ -143,7 +143,8 @@ export class CoursesView extends LitElement {
   `;
 
     static properties = {
-        dataUrl: { type: String },
+        coursesUrl: { type: String },
+        courseLinesUrl: { type: String },
         styleUrl: { type: String },
         initialCenter: { type: Array },
         calibrationCourses: { type: Object, state: true },
@@ -204,12 +205,18 @@ export class CoursesView extends LitElement {
 
     async loadData() {
         try {
-            const response = await fetch(this.dataUrl);
+            let response = await fetch(this.coursesUrl);
             if (!response.ok) {
                 throw new Error(`Failed to fetch course data: ${response.status} ${response.statusText}`);
             }
 
             this.calibrationCourses = (await response.json()).features;
+
+            response = await fetch(this.courseLinesUrl);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch course data: ${response.status} ${response.statusText}`);
+            }
+            this.calibrationCourseLines = (await response.json()).features;
             this.processData();
             this.initializeMap();
         } catch (error) {
@@ -245,11 +252,6 @@ export class CoursesView extends LitElement {
 
         this.states = [...statesSet].sort();
         this.locations = [...locationsSet].sort();
-    }
-
-    computeDisplayFeatures() {
-        // Eventually, we'll also incorporate non-course-point features
-        return this.calibrationCourses.filter(feature => true)
     }
 
     initializeMap() {
@@ -352,7 +354,7 @@ export class CoursesView extends LitElement {
                 });
 
                 const clusterId = features[0].properties.cluster_id;
-                const coursesSource = this.map.getSource('courses')
+                const coursesSource = this.map.getSource('course-points')
                 coursesSource.getClusterExpansionZoom(
                     clusterId
                 ).then((clusterExpansionZoom) => {
@@ -519,14 +521,22 @@ export class CoursesView extends LitElement {
         const visibleRowIds = rows.map(row => row.getData().properties.certificateId);
 
         // Filter the map features to only show those that match the visible rows
-        const filteredFeatures = this.computeDisplayFeatures().filter(feature =>
+        const filteredFeatures = this.calibrationCourses.filter(feature =>
+            visibleRowIds.includes(feature.properties.certificateId)
+        );
+
+        const filteredLineFeatures = this.calibrationCourseLines.filter(feature =>
             visibleRowIds.includes(feature.properties.certificateId)
         );
 
         // Update the map source with the filtered features
-        this.map.getSource("courses").setData({
+        this.map.getSource("course-points").setData({
             type: 'FeatureCollection',
             features: filteredFeatures
+        });
+        this.map.getSource("course-lines").setData({
+            type: 'FeatureCollection',
+            features: filteredLineFeatures
         });
     }
 

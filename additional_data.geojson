@@ -1,0 +1,34 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+    {
+        "type": "Feature",
+        "geometry": {
+            "type": "Point"
+        },
+        "properties": {
+            "certificateId": "AK24001FW",
+            "certificateLink": "https://certifiedroadraces.com/certificate/?type=c&id=533"
+        }
+    },
+{
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.2677132432537,
+            47.64229087622516
+          ],
+          [
+            -122.26205302591731,
+            47.641431710631394
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "WA24019RMB"
+      }
+    }
+]
+}
