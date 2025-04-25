@@ -167,6 +167,8 @@ def tsv_to_geojson(input_file):
                 print(f"Skipping row due to error: {e}")
                 continue
 
+    # Sort features by certificateId
+    geojson["features"].sort(key=lambda x: x["properties"]["certificateId"])
     return geojson
 
 
