@@ -7,6 +7,44 @@
         "type": "LineString",
         "coordinates": [
           [
+            -81.64326958,
+            30.32723242
+          ],
+          [
+            -81.64412618,
+            30.32463284
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "FL24001JRG"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -79.986111,
+            40.457222
+          ],
+          [
+            -79.988611,
+            40.455278
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "PA18001MW"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
             -122.26940577525231,
             47.64256530619468
           ],
