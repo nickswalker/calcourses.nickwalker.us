@@ -28,6 +28,9 @@ Tabulator.registerModule([
     GroupRowsModule
 ]);
 
+import {StackedBarChart} from "./StackedBarChart.js";
+import {MeasurerStats} from "./MeasurerStats.js";
+
 /**
  * Custom Home Control for MapLibre
  */
@@ -763,6 +766,16 @@ export class CoursesView extends LitElement {
         <div class="map-table-container">
           <div id="map"></div>
           <div id="courses-table" class="table-sm"></div>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-lg-9">
+          ${this.dataLoading ? html`<div class="spinner-border" role="status">` :
+                  html`<stacked-bar-chart .data="${this.filteredCourses}"></stacked-bar-chart>`}
+        </div>
+        <div class="col-lg-3">
+          ${this.dataLoading ? html`<div class="spinner-border" role="status">` :
+                  html`<measurer-stats .data="${this.filteredCourses}" .limit="${10}"></measurer-stats>`}
         </div>
       </div>
     `;
