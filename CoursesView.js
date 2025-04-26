@@ -493,6 +493,7 @@ export class CoursesView extends LitElement {
                 {title: "Measurer", field: "properties.measurer", sorter: "string", headerSort: true, headerFilter: true},
                 {title: "Expired", field: "properties.expired", sorter: "string", headerSort: true, headerFilter: true, visible: false}, // just for filtering on
                 {title: "Approximate", field: "properties.approximate", sorter: "string", headerSort: false, headerFilter: true, visible: false}, // just for filtering on
+                {title: "Year", field: "properties.year", sorter: "string", headerSort: true, headerFilter: true, visible: true},
                 {
                     title: "Actions",
                     formatter: function(cell) {

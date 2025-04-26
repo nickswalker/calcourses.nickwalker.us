@@ -1,5 +1,7 @@
 # USATF Calibration Course Map
 
+![Map of US with clusters of courses plotted](map_image.png)
+
 [Map](https://calcourses.nickwalker.us/) of courses of known length, taken from the [USATF Course Database](https://certifiedroadraces.com/search/) with additional metadata from [Mark Neal's map](https://www.rrtc.net/Calibrations_map/calibration_map.html). Used by road-running [course measurers](https://www.usatf.org/resources/course-certification) to calibrate odometer-equipped bicycles before and after measurements.
 
 ## Contributing
