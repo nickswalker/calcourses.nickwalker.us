@@ -274,10 +274,10 @@ def patch_geojson_with_additional_data(original_geojson, additional_data_file):
 
 
 def main():
-    input_file = "calibration_courses.tsv"
-    additional_data_file = "additional_data.geojson"
-    output_file = "calibration_courses.geojson"
-    line_output_file = "calibration_course_lines.geojson"
+    input_file = "data/calibration_courses.tsv"
+    additional_data_file = "data/additional_data.geojson"
+    output_file = "data/calibration_courses.geojson"
+    line_output_file = "data/calibration_course_lines.geojson"
 
     if not Path(input_file).exists():
         print(f"Error: Input file '{input_file}' not found.")
