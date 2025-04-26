@@ -65,19 +65,22 @@ function featureToDescription(feature) {
     }
     return `
 <h6 class="float-end">${properties.courseLength}${properties.units}</h6>
-    <h4 class="lh-1">${properties.name} <span class="text-secondary"> ${expiredText}</span></h4>
+    <h5 class="lh-1">${properties.name} <span class="text-secondary"> ${expiredText}</span></h5>
     
-    <p class="lh-1 d-flex flex-column gap-1">
-      <a href="${properties.certificateLink}">${properties.certificateId}</a>
+    <div class="lh-1 d-flex flex-column gap-1">
+      <a href="${properties.certificateLink}" target="_blank">${properties.certificateId}</a>
       ${properties.city}, ${properties.state}<br>
       Measurer: ${properties.measurer}<br>
+      <div class="d-flex flex-row gap-2">
       <a href="https://www.google.com/maps/place/${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}">
         Google Maps
       </a>
       <a href="https://www.google.com/maps/dir/?api=1&destination=${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}&travelmode=driving">
-        Driving directions to course
+        Directions
       </a>
-    </p>
+     </div>
+     </div>
+
   `;
 }
 
@@ -147,7 +150,8 @@ export class CoursesView extends LitElement {
         courseLinesUrl: { type: String },
         styleUrl: { type: String },
         initialCenter: { type: Array },
-        calibrationCourses: { type: Object, state: true },
+        calibrationCourses: { type: Array, state: true },
+        filteredCourses: { type: Array, state: true },
         states: { type: Array, state: true },
         locations: { type: Array, state: true },
         features: { type: Array, state: true },
@@ -156,19 +160,24 @@ export class CoursesView extends LitElement {
         headerFilters: { type: Array, state: true },
         sorts: { type: Array, state: true },
         openCourse: { type: String, state: true },
+        approximateOnly: { type: Boolean, state: true },
+        dataLoading: { type: Boolean, state: true },
     };
 
     constructor() {
         super();
-        this.calibrationCourses = {};
+        this.calibrationCourses = [];
         this.states = [];
         this.filters = [];
         this.headerFilters = [];
+        this.filteredCourses = [];
         this.sorts = [   {column: "properties.city", dir: "asc"},
             {column: "properties.state", dir: "asc"}];
         this.locations = [];
         this.mapLoaded = false;
         this.openCourse = undefined;
+        this.dataLoading = true;
+
     }
 
     createRenderRoot() {
@@ -201,6 +210,16 @@ export class CoursesView extends LitElement {
                 this.openCourse = urlHash.substring(1);
             }
         })
+        const urlParams = new URLSearchParams(window.location.search);
+        const approximateOnly = urlParams.get('approximateOnly');
+        if (approximateOnly) {
+            this.approximateOnly = approximateOnly === 'true';
+            this.filters = this.filters.filter(filter => filter.field !== "properties.approximate");
+            this.filters.push({field: "properties.approximate", type: "=", value: true});
+        } else {
+            this.approximateOnly = false;
+            this.filters = this.filters.filter(filter => filter.field !== "properties.approximate");
+        }
     }
 
     async loadData() {
@@ -222,6 +241,10 @@ export class CoursesView extends LitElement {
         } catch (error) {
             console.error('Error loading calibration courses data:', error);
             this.renderError(error);
+
+        } finally {
+            this.filteredCourses = this.calibrationCourses
+            this.dataLoading = false;
         }
     }
 
@@ -241,9 +264,16 @@ export class CoursesView extends LitElement {
                 locationsSet.add(properties.city + ', ' + properties.state);
             }
 
-            const courseYear = parseInt("20" + properties.certificateId.substring(2, 4));
-            course.properties.year = courseYear;
-            course.properties.expired = currentYear > (courseYear + 10)
+            // Extract the first two digits after any letters at the beginning
+            const yearMatch = properties.certificateId.match(/^[A-Za-z]+(\d{2})/);
+            if (yearMatch && yearMatch[1]) {
+                const courseYear = parseInt("20" + yearMatch[1]);
+                course.properties.year = courseYear;
+                course.properties.expired = currentYear > (courseYear + 10)
+            } else {
+                // Handle the case where no matching pattern is found
+                console.warn("Could not extract year from certificateId:", properties.certificateId);
+            }
             course.properties.courseLengthMeters = course.properties.courseLength
             if (course.properties.units === "ft") {
                 course.properties.courseLengthMeters = course.properties.courseLength * .3048
@@ -260,7 +290,7 @@ export class CoursesView extends LitElement {
             ? JSON.parse(sessionStorage.getItem('mapCenter'))
             : this.initialCenter;
 
-        const zoom = Number(sessionStorage.getItem('mapZoom')) || 9;
+        const zoom = Number(sessionStorage.getItem('mapZoom')) || 2;
         const pitch = Number(sessionStorage.getItem('mapPitch')) || 0;
         const bearing = Number(sessionStorage.getItem('mapBearing')) || 0;
 
@@ -290,7 +320,9 @@ export class CoursesView extends LitElement {
             this.popup = new maplibregl.Popup({
                 closeButton: true,
                 closeOnClick: false,
-                className: 'course-popup'
+                className: 'course-popup',
+                focusAfterOpen: false,
+                offset: 12
             });
             this.popup.on("close", () => {
                 this.openCourse = undefined;
@@ -415,10 +447,6 @@ export class CoursesView extends LitElement {
         });
     }
 
-
-
-
-
     initializeTable() {
         this.table = new Tabulator(this.renderRoot.querySelector("#courses-table"), {
             data: this.calibrationCourses,
@@ -436,6 +464,7 @@ export class CoursesView extends LitElement {
             initialSort: this.sorts,
             initialFilter: this.filters,
             initialHeaderFilter: this.headerFilters,
+            footerElement: "<footer class='tabulator-footer text-secondary fw-normal'><span id='course-count'></span> courses, <span id='after-filter-count'></span> after filters</footer>",
             columns: [
                 {title: "Certificate", field: "properties.certificateId", sorter: "string", headerSort: true, headerFilter: true,
                     formatter: function(cell) {
@@ -445,34 +474,36 @@ export class CoursesView extends LitElement {
                         return id ? `<a href="${link}" target="_blank">${id}</a>` : "";
                     }
                 },
-                {title: "Course Name", field: "properties.nameAbbreviated", sorter: "string", headerSort: true, headerFilter: true, formatter: function(cell) {
+                {title: "Course Name", field: "properties.nameAbbreviated", sorter: "string", headerSort: false, headerFilter: true, formatter: function(cell) {
                     const data = cell.getRow().getData();
                     if (data.properties.expired) {
                         return data.properties.nameAbbreviated + " <span class='text-secondary'>(Expired)</span>";
                     }
                     else return `<span title="${data.properties.name}">${data.properties.nameAbbreviated}</span>`;
                     }},
-                {title: "City", field: "properties.city", sorter: "string", headerSort: true, headerFilter: true},
-                {title: "State", field: "properties.state", sorter: "string", headerSort: true, headerFilter: true},
+                {title: "City", field: "properties.city", sorter: "string", headerSort: false, headerFilter: true},
+                {title: "State", field: "properties.state", sorter: "string", headerSort: false, headerFilter: true},
                 {title: "Length", field: "properties.courseLengthMeters", sorter: "string", headerSort: true, formatter: function (cell){
                     const data = cell.getRow().getData()
                         return data.properties.courseLength + data.properties.units;
                     }},
                 {title: "Measurer", field: "properties.measurer", sorter: "string", headerSort: true, headerFilter: true},
                 {title: "Expired", field: "properties.expired", sorter: "string", headerSort: true, headerFilter: true, visible: false}, // just for filtering on
+                {title: "Approximate", field: "properties.approximate", sorter: "string", headerSort: false, headerFilter: true, visible: false}, // just for filtering on
                 {
                     title: "Actions",
                     formatter: function(cell) {
                         const data = cell.getRow().getData();
                         return `
-              <div class="btn-group btn-group-sm" role="group">
-                <a href="https://www.google.com/maps/place/${data.geometry.coordinates[1]},${data.geometry.coordinates[0]}" target="_blank" class="btn btn-outline-primary btn-sm">
-                  <i class="bi bi-map"></i> Map
+                <div class="d-flex gap-2">
+                <a href="https://www.google.com/maps/place/${data.geometry.coordinates[1]},${data.geometry.coordinates[0]}" target="_blank" class="link-secondary">
+                   Map
                 </a>
-                <a href="https://www.google.com/maps/dir/?api=1&destination=${data.geometry.coordinates[1]},${data.geometry.coordinates[0]}&travelmode=driving" target="_blank" class="btn btn-outline-primary btn-sm">
-                  <i class="bi bi-signpost"></i> Directions
+                <a href="https://www.google.com/maps/dir/?api=1&destination=${data.geometry.coordinates[1]},${data.geometry.coordinates[0]}&travelmode=driving" target="_blank" class="link-secondary">
+                   Directions
                 </a>
-              </div>`;
+                </div>
+             `;
                     },
                     headerSort: false,
                     hozAlign: "center"
@@ -494,6 +525,8 @@ export class CoursesView extends LitElement {
 
         // Update map when table is filtered
         this.table.on("dataFiltered", (filters, rows) => {
+            this.table.footerManager.element.querySelector("#course-count").innerText = this.table.getData().length;
+            this.table.footerManager.element.querySelector("#after-filter-count").innerText = rows.length
             this.matchMapToTableData(rows)
             sessionStorage.setItem('tableFilters', JSON.stringify(this.filters));
             sessionStorage.setItem('tableHeaderFilters', JSON.stringify(this.headerFilters));
@@ -508,11 +541,8 @@ export class CoursesView extends LitElement {
         // Reset map when filters are cleared
         this.table.on("dataFilterCleared", () => {
             // Reset to show all features
-            this.matchMapToTableData(this.table.getRows())
+            //this.matchMapToTableData(this.table.getRows())
         });
-
-
-
     }
 
     matchMapToTableData(rows) {
@@ -524,6 +554,8 @@ export class CoursesView extends LitElement {
         const filteredFeatures = this.calibrationCourses.filter(feature =>
             visibleRowIds.includes(feature.properties.certificateId)
         );
+        this.filteredCourses = filteredFeatures.slice();
+
 
         const filteredLineFeatures = this.calibrationCourseLines.filter(feature =>
             visibleRowIds.includes(feature.properties.certificateId)
@@ -673,7 +705,7 @@ export class CoursesView extends LitElement {
         }
 
         if (changedProperties.has("filters")) {
-            this.filters.map(filter => {this.table.setFilter(filter.field, filter.type, filter.value);})
+            this.filters.map(filter => {this.table.addFilter(filter.field, filter.type, filter.value);})
             this.table.getFilters().map(filter => {
                 if (!this.isFilterActive(filter.field, filter.type, filter.value)) {
                     this.table.removeFilter(filter.field, filter.type, filter.value);
@@ -693,9 +725,6 @@ export class CoursesView extends LitElement {
             }
         }
     }
-
-
-
 
     render() {
         return html`
