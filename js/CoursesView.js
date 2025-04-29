@@ -71,7 +71,7 @@ function featureToDescription(feature) {
     <h5 class="lh-1">${properties.name} <span class="text-secondary"> ${expiredText}</span></h5>
     
     <div class="lh-1 d-flex flex-column gap-1">
-      <a href="${properties.certificateLink}" target="_blank">${properties.certificateId}</a>
+      <a href="${properties.certificateLink}" target="_blank" data-goatcounter-click="ext-${properties.certificateId}">${properties.certificateId}</a>
       ${properties.city}, ${properties.state}<br>
       Measurer: ${properties.measurer}<br>
       <div class="d-flex flex-row gap-2">
@@ -474,7 +474,7 @@ export class CoursesView extends LitElement {
                         const data = cell.getRow().getData();
                         const id = data.properties.certificateId;
                         const link = data.properties.certificateLink || `https://www.certifiedroadraces.com/certificate?type=c&id=${id}`;
-                        return id ? `<a href="${link}" target="_blank">${id}</a>` : "";
+                        return id ? `<a href="${link}" target="_blank" data-goatcounter-click="ext-${data.properties.certificateId}">${id}</a>` : "";
                     }
                 },
                 {title: "Course Name", field: "properties.nameAbbreviated", sorter: "string", headerSort: false, headerFilter: true, formatter: function(cell) {
