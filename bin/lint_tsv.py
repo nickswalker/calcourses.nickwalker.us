@@ -4,6 +4,7 @@ import math
 import re
 from pathlib import Path
 from datetime import datetime, timezone
+from collections import defaultdict
 
 
 def extract_url_from_anchor(html_string):
@@ -108,12 +109,16 @@ def lint_tsv(input_file, output_file, epsilon=10):  # epsilon in meters
     3. Find all courses with 'Calibration' misspellings in their names
     4. Find all courses with typoed measurements in their names
     5. List all courses where Color is 'PURPLE' (approximate location)
+    6. Find all courses with duplicate certificate links
     """
     courses = []
     empty_cert_links = []
     misspelled_courses = []
     typoed_measurement_courses = []
     purple_courses = []
+
+    # Dictionary to track certificate links and which courses use them
+    cert_links_to_courses = defaultdict(list)
 
     # Read in all courses
     with open(input_file, 'r', encoding='utf-8') as tsv_file:
@@ -132,6 +137,12 @@ def lint_tsv(input_file, output_file, epsilon=10):  # epsilon in meters
                 # Check for empty certificate links
                 if not cert_link:
                     empty_cert_links.append(course_id)
+                else:
+                    # Track this certificate link for duplicate detection
+                    cert_links_to_courses[cert_link].append({
+                        'id': course_id,
+                        'name': course_name
+                    })
 
                 # Check for calibration misspellings
                 misspelling = detect_calibration_misspellings(course_name)
@@ -176,6 +187,9 @@ def lint_tsv(input_file, output_file, epsilon=10):  # epsilon in meters
             except (ValueError, KeyError) as e:
                 print(f"Error processing course {row.get('CourseID', 'unknown')}: {e}")
 
+    # Find duplicated certificate links (links used by more than one course)
+    duplicated_links = {link: courses for link, courses in cert_links_to_courses.items() if len(courses) > 1}
+
     # Find courses with close coordinates
     close_courses = []
 
@@ -207,6 +221,16 @@ def lint_tsv(input_file, output_file, epsilon=10):  # epsilon in meters
                 f.write(f"{cert_id}\t{course_name}\n")
         else:
             f.write("No courses with empty certificate links found.\n")
+
+        f.write("\n=== COURSES WITH DUPLICATED CERTIFICATE LINKS ===\n")
+        if duplicated_links:
+            for link, course_list in duplicated_links.items():
+                f.write(f"Link: {link}\n")
+                for course in course_list:
+                    f.write(f"{course['id']}\t{course['name']}\n")
+                f.write(f"{'-' * 50}\n")
+        else:
+            f.write("No courses with duplicated certificate links found.\n")
 
         f.write("\n=== COURSES WITH 'CALIBRATION' MISSPELLINGS ===\n")
         if misspelled_courses:
