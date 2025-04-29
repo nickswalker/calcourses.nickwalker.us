@@ -215,6 +215,11 @@ def patch_geojson_with_additional_data(original_geojson, additional_data_file):
             additional_geom_type = additional_feature.get('geometry', {}).get('type')
             original_geom_type = feature.get('geometry', {}).get('type')
 
+            new_coordinates = additional_feature['geometry'].get('coordinates', None)
+            if new_coordinates and len(new_coordinates) == 2 and new_coordinates[0] == new_coordinates[1]:
+                # If the coordinates are the same, remove them. They're placeholders just to keep the geojson valid
+                del additional_feature['geometry']['coordinates']
+
             # If the additional feature has a LineString geometry, add it to the line collection
             if additional_geom_type == 'LineString':
                 # Create a new feature for the line collection

@@ -6,50 +6,12 @@
     {
       "type": "Feature",
       "geometry": {
-        "type": "Point"
+        "type": "Point",
+        "coordinates": [0,0]
       },
       "properties": {
         "certificateId": "AK24001FW",
         "certificateLink": "https://certifiedroadraces.com/certificate/?type=c&id=533"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            -122.26940577525231,
-            47.64256530619468
-          ],
-          [
-            -122.26518535114572,
-            47.64192125575204
-          ]
-        ]
-      },
-      "properties": {
-        "certificateId": "WA24019RMB",
-        "certificateLink": "https://certifiedroadraces.com/certificate/?type=c&id=512"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            -122.26940577525231,
-            47.64256530619468
-          ],
-          [
-            -122.26518535114572,
-            47.64192125575204
-          ]
-        ]
-      },
-      "properties": {
-        "certificateId": "WA23018RMB"
       }
     },
     {
@@ -71,7 +33,20 @@
         "certificateId": "FL24001JRG"
       }
     },
-
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.967796,
+          42.699085
+        ]
+      },
+      "properties": {
+        "certificateId": "NY20001JG",
+        "approximate": true
+      }
+    },
     {
       "type": "Feature",
       "geometry": {
@@ -89,6 +64,44 @@
       },
       "properties": {
         "certificateId": "PA18001MW"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.26940577525231,
+            47.64256530619468
+          ],
+          [
+            -122.26518535114572,
+            47.64192125575204
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "WA24019RMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.26940577525231,
+            47.64256530619468
+          ],
+          [
+            -122.26518535114572,
+            47.64192125575204
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "WA23018RMB"
       }
     }
   ]
