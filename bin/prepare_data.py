@@ -1,4 +1,4 @@
-import json
+#!/usr/bin/env python3
 import csv
 from pathlib import Path
 import re
@@ -18,7 +18,7 @@ def extract_url_from_anchor(html_string):
 
 def remove_calibration_references(text):
     # Pattern to match various forms of calibration course references
-    calibration_pattern = r'\s+-?\s*(?:calibration\s+course|calibration|cal\s+course)'
+    calibration_pattern = r'\s+-?\s*(?:calibration\s+course|calibration|cal\.?\s*course|cal\s+crse)'
 
     # Remove all matches from the text
     result = re.sub(calibration_pattern, '', text, flags=re.IGNORECASE)

@@ -34,7 +34,11 @@ jobs:
           python-version: '3.13'
 
       - name: Run data preparation script
-        run: ./bin/pull_data.sh && python bin/prepare_data.py
+        run: ./bin/pull_data.sh && ./bin/prepare_data.py
+
+      - name: Check data quality
+        run: ./bin/lint_tsv.py
+        continue-on-error: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
