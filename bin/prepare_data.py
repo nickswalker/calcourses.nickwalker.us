@@ -2,6 +2,9 @@ import json
 import csv
 from pathlib import Path
 import re
+import json
+import os
+from datetime import datetime, timezone
 
 
 def extract_url_from_anchor(html_string):
@@ -285,6 +288,10 @@ def main():
 
     geojson_data = tsv_to_geojson(input_file)
 
+    if len(geojson_data["features"]) == 0:
+        print(f"Error: No valid features found in '{input_file}'.")
+        exit(1)
+
     # Patch with additional data if available
     if Path(additional_data_file).exists():
         print(f"Patching with additional data from '{additional_data_file}'...")
@@ -305,6 +312,16 @@ def main():
 
     print(f"Conversion complete. Point GeoJSON written to {output_file}")
     print(f"Converted {len(geojson_data['features'])} point features.")
+
+    # So we can display last update time on the webpage
+    timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    data = {
+        'last_updated': timestamp
+    }
+
+    with open(os.path.join('data', 'last_updated.json'), 'w') as f:
+        json.dump(data, f, indent=2)
 
 
 if __name__ == "__main__":

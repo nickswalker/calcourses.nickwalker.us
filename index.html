@@ -181,7 +181,7 @@
 
   <footer class="my-5 pt-5 text-muted text-center text-small">
     <div class="mb-1 row">
-      <p>Data last updated April 2025</p>
+      <p hidden>Data last updated <time datetime=""></time></p>
       <ul class="list-inline mb-2 d-flex justify-content-center gap-2">
         <li><a href="https://certifiedroadraces.com/search/">Course Database</a></li>
         <li><a href="https://rrtc.net/Calibrations_map/calibration_map.html">Original Cal Course Map</a></li>
@@ -198,6 +198,25 @@
 
 <script type="module">
     import {CoursesView} from './js/CoursesView.js';
+    fetch('./data/last_updated.json')
+        .then(response => response.json())
+        .then(data => {
+            const lastUpdated = new Date(data.last_updated);
+            const formattedDate = lastUpdated.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZoneName: "short"
+            });
+            const timeElement = document.querySelector('footer time')
+            timeElement.setAttribute('datetime', data.last_updated);
+            timeElement.textContent = formattedDate;
+            timeElement.parentElement.removeAttribute('hidden');
+        })
+        .catch(error => console.error('Error loading update time:', error));
 </script>
 </body>
 </html>
