@@ -1,5 +1,5 @@
-import { LitElement, html, css } from 'lit';
-import { map } from 'lit-html/directives/map.js';
+import {LitElement, html, css} from 'lit';
+import {map} from 'lit-html/directives/map.js';
 import maplibregl from 'maplibre-gl';
 import {
     Tabulator,
@@ -71,115 +71,110 @@ function featureToDescription(feature) {
     <h5 class="lh-1">${properties.name} <span class="text-secondary"> ${expiredText}</span></h5>
     
     <div class="lh-1 d-flex flex-column gap-1">
-      <a href="${properties.certificateLink}" target="_blank" data-goatcounter-click="ext-${properties.certificateId}">${properties.certificateId}</a>
+      <a href="${properties.certificateLink}" target="_blank" data-goatcounter-click="ext-cert-${properties.certificateId}">${properties.certificateId}</a>
       ${properties.city}, ${properties.state}<br>
       Measurer: ${properties.measurer}<br>
       <div class="d-flex flex-row gap-2">
-      <a href="https://www.google.com/maps/place/${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}">
+      ${properties.approximate ? "<span class='text-danger'>Location Approximate</span>" : 
+            `<a href="https://www.google.com/maps/place/${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}">
         Google Maps
       </a>
       <a href="https://www.google.com/maps/dir/?api=1&destination=${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}&travelmode=driving">
         Directions
-      </a>
+      </a>`
+    }
      </div>
      </div>
-
   `;
 }
 
 export class CoursesView extends LitElement {
     static styles = css`
-    :host {
-      display: block;
-      height: 100%;
-    }
-    
-    .container {
-      display: grid;
-      grid-template-rows: auto 1fr;
-      height: 100%;
-      width: 100%;
-    }
-    
-    .controls {
-      display: flex;
-      gap: 1rem;
-      padding: 1rem;
-      background-color: #f8f9fa;
-      border-bottom: 1px solid #dee2e6;
-    }
-    
-    .select-container {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-    
-    select {
-      padding: 0.5rem;
-      border-radius: 4px;
-      border: 1px solid #ced4da;
-    }
-    
-    .map-table-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      height: 100%;
-    }
-    
-    #map {
-      height: 100%;
-    }
-    
-    #courses-table {
-      height: 100%;
-      overflow: auto;
-    }
-    
-    .course-popup {
-      max-width: 300px;
-    }
-    
-    @media (max-width: 768px) {
-      .map-table-container {
-        grid-template-columns: 1fr;
-        grid-template-rows: 1fr 1fr;
-      }
-    }
-  `;
+        courses-view {
+            display: block;
+        }
+
+        .container {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            height: 100%;
+            width: 100%;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .select-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        select {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+        }
+
+
+        .maplibregl-map {
+            height: 100%;
+        }
+
+        #courses-table {
+            overflow: auto;
+            height: 500px;
+        }
+
+        .course-popup {
+            max-width: 300px;
+        }
+    `;
 
     static properties = {
-        coursesUrl: { type: String },
-        courseLinesUrl: { type: String },
-        styleUrl: { type: String },
-        initialCenter: { type: Array },
-        calibrationCourses: { type: Array, state: true },
-        filteredCourses: { type: Array, state: true },
-        states: { type: Array, state: true },
-        locations: { type: Array, state: true },
-        features: { type: Array, state: true },
-        mapLoaded: { type: Boolean, state: true },
-        filters: { type: Array, state: true },
-        headerFilters: { type: Array, state: true },
-        sorts: { type: Array, state: true },
-        openCourse: { type: String, state: true },
-        approximateOnly: { type: Boolean, state: true },
-        dataLoading: { type: Boolean, state: true },
+        coursesUrl: {type: String},
+        courseLinesUrl: {type: String},
+        styleUrl: {type: String},
+        initialCenter: {type: Array},
+        calibrationCourses: {type: Array, state: true},
+        filteredCourses: {type: Array, state: true},
+        states: {type: Array, state: true},
+        locations: {type: Array, state: true},
+        features: {type: Array, state: true},
+        mapLoaded: {type: Boolean, state: true},
+        filters: {type: Array, state: true},
+        headerFilters: {type: Array, state: true},
+        sorts: {type: Array, state: true},
+        openCourse: {type: String, state: true},
+        approximateOnly: {type: Boolean, state: true},
+        dataLoading: {type: Boolean, state: true},
     };
 
     constructor() {
         super();
-        this.calibrationCourses = [];
+        this.calibrationCourses = null;
+        this.calibrationCourseLines = null;
         this.states = [];
         this.filters = [];
         this.headerFilters = [];
         this.filteredCourses = [];
-        this.sorts = [   {column: "properties.city", dir: "asc"},
+        this.sorts = [{column: "properties.city", dir: "asc"},
             {column: "properties.state", dir: "asc"}];
         this.locations = [];
         this.mapLoaded = false;
         this.openCourse = undefined;
         this.dataLoading = true;
+        this.mapContainer = document.createElement("div")
+        this.mapContainer.classList.add("mb-1")
+        this.mapContainer.id = "map";
+        this.tableContainer = document.createElement("div")
+        this.tableContainer.id = "courses-table";
+        this.tableContainer.classList.add("table-sm")
 
     }
 
@@ -206,6 +201,9 @@ export class CoursesView extends LitElement {
         if (urlHash) {
             this.openCourse = urlHash.substring(1);
         }
+        this.initializeMap();
+        this.initializeTable();
+
         this.loadData();
         window.addEventListener("hashchange", () => {
             const urlHash = location.hash;
@@ -227,26 +225,34 @@ export class CoursesView extends LitElement {
 
     async loadData() {
         try {
-            let response = await fetch(this.coursesUrl);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch course data: ${response.status} ${response.statusText}`);
+            const [coursesResponse, courseLinesResponse] = await Promise.all([
+                fetch(this.coursesUrl),
+                fetch(this.courseLinesUrl)
+            ]);
+
+            if (!coursesResponse.ok) {
+                throw new Error(`Failed to fetch course data: ${coursesResponse.status} ${coursesResponse.statusText}`);
             }
 
-            this.calibrationCourses = (await response.json()).features;
-
-            response = await fetch(this.courseLinesUrl);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch course data: ${response.status} ${response.statusText}`);
+            if (!courseLinesResponse.ok) {
+                throw new Error(`Failed to fetch course lines data: ${courseLinesResponse.status} ${courseLinesResponse.statusText}`);
             }
-            this.calibrationCourseLines = (await response.json()).features;
+
+            const [coursesData, courseLinesData] = await Promise.all([
+                coursesResponse.json(),
+                courseLinesResponse.json()
+            ]);
+
+            this.calibrationCourses = coursesData.features;
+            this.calibrationCourseLines = courseLinesData.features;
+
             this.processData();
-            this.initializeMap();
+            this.table.replaceData(this.calibrationCourses)
         } catch (error) {
             console.error('Error loading calibration courses data:', error);
             this.renderError(error);
-
         } finally {
-            this.filteredCourses = this.calibrationCourses
+            this.filteredCourses = this.calibrationCourses;
             this.dataLoading = false;
         }
     }
@@ -298,7 +304,7 @@ export class CoursesView extends LitElement {
         const bearing = Number(sessionStorage.getItem('mapBearing')) || 0;
 
         this.map = new maplibregl.Map({
-            container: this.renderRoot.querySelector('#map'),
+            container: this.mapContainer,
             style: this.styleUrl,
             center,
             zoom,
@@ -310,7 +316,7 @@ export class CoursesView extends LitElement {
         this.map.addControl(new maplibregl.NavigationControl(), 'top-right');
         this.map.addControl(new maplibregl.FullscreenControl(), 'top-right');
         this.map.addControl(new maplibregl.GeolocateControl({
-            positionOptions: { enableHighAccuracy: true },
+            positionOptions: {enableHighAccuracy: true},
             trackUserLocation: true
         }), 'top-right');
 
@@ -319,18 +325,19 @@ export class CoursesView extends LitElement {
 
         // Set up event listeners after map loads
         this.map.on('load', () => {
+           this.map.resize()
             // Create popup for displaying course information
             this.popup = new maplibregl.Popup({
                 closeButton: true,
                 closeOnClick: false,
                 className: 'course-popup',
                 focusAfterOpen: false,
-                offset: 12
+                offset: 12,
+                anchor: 'left'
             });
             this.popup.on("close", () => {
                 this.openCourse = undefined;
             })
-
 
             // Show popup on hover
             this.map.on('mouseenter', 'unclustered-point', (e) => {
@@ -365,7 +372,7 @@ export class CoursesView extends LitElement {
             // Pin popup on click
             this.map.on('click', 'unclustered-point', (e) => {
                 const clickedId = e.features[0].properties.certificateId;
-                if (this.openCourse === clickedId ) return;
+                if (this.openCourse === clickedId) return;
                 this.openCourse = clickedId;
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const popupNode = document.createElement('div');
@@ -430,8 +437,6 @@ export class CoursesView extends LitElement {
             this.map.on('mouseleave', 'clusters', () => {
                 this.map.getCanvas().style.cursor = '';
             });
-            this.initializeTable();
-
             // Mark map as loaded to update UI
             this.mapLoaded = true;
 
@@ -451,16 +456,16 @@ export class CoursesView extends LitElement {
     }
 
     initializeTable() {
-        this.table = new Tabulator(this.renderRoot.querySelector("#courses-table"), {
-            data: this.calibrationCourses,
+        this.table = new Tabulator(this.tableContainer, {
             index: "properties.certificateId",
+            data: [],
             pagination: true,
             paginationSize: 15,
             layout: "fitDataFill",
             paginationSizeSelector: [10, 15, 25, 50, 100],
             placeholder: "No Data Available",
             groupBy: "properties.state", // Group by state
-            groupHeader: function(value, count) {
+            groupHeader: function (value, count) {
                 return value + " <span class='text-muted'>(" + count + " courses)</span>";
             },
             groupToggleElement: "header",
@@ -469,35 +474,82 @@ export class CoursesView extends LitElement {
             initialHeaderFilter: this.headerFilters,
             footerElement: "<footer class='tabulator-footer text-secondary fw-normal'><span id='course-count'></span> courses, <span id='after-filter-count'></span> after filters</footer>",
             columns: [
-                {title: "Certificate", field: "properties.certificateId", sorter: "string", headerSort: true, headerFilter: true,
-                    formatter: function(cell) {
+                {
+                    title: "Certificate",
+                    field: "properties.certificateId",
+                    sorter: "string",
+                    headerSort: true,
+                    headerFilter: true,
+                    formatter: function (cell) {
                         const data = cell.getRow().getData();
                         const id = data.properties.certificateId;
                         const link = data.properties.certificateLink || `https://www.certifiedroadraces.com/certificate?type=c&id=${id}`;
-                        return id ? `<a href="${link}" target="_blank" data-goatcounter-click="ext-${data.properties.certificateId}">${id}</a>` : "";
+                        return id ? `<a href="${link}" target="_blank" data-goatcounter-click="ext-cert-${data.properties.certificateId}">${id}</a>` : "";
                     }
                 },
-                {title: "Course Name", field: "properties.nameAbbreviated", sorter: "string", headerSort: false, headerFilter: true, formatter: function(cell) {
-                    const data = cell.getRow().getData();
-                    if (data.properties.expired) {
-                        return data.properties.nameAbbreviated + " <span class='text-secondary'>(Expired)</span>";
+                {
+                    title: "Course Name",
+                    field: "properties.nameAbbreviated",
+                    sorter: "string",
+                    headerSort: false,
+                    headerFilter: true,
+                    formatter: function (cell) {
+                        const data = cell.getRow().getData();
+                        if (data.properties.expired) {
+                            return data.properties.nameAbbreviated + " <span class='text-secondary'>(Expired)</span>";
+                        } else return `<span title="${data.properties.name}">${data.properties.nameAbbreviated}</span>`;
                     }
-                    else return `<span title="${data.properties.name}">${data.properties.nameAbbreviated}</span>`;
-                    }},
+                },
                 {title: "City", field: "properties.city", sorter: "string", headerSort: false, headerFilter: true},
                 {title: "State", field: "properties.state", sorter: "string", headerSort: false, headerFilter: true},
-                {title: "Length", field: "properties.courseLengthMeters", sorter: "string", headerSort: true, formatter: function (cell){
-                    const data = cell.getRow().getData()
+                {
+                    title: "Length",
+                    field: "properties.courseLengthMeters",
+                    sorter: "string",
+                    headerSort: true,
+                    formatter: function (cell) {
+                        const data = cell.getRow().getData()
                         return data.properties.courseLength + data.properties.units;
-                    }},
-                {title: "Measurer", field: "properties.measurer", sorter: "string", headerSort: true, headerFilter: true},
-                {title: "Expired", field: "properties.expired", sorter: "string", headerSort: true, headerFilter: true, visible: false}, // just for filtering on
-                {title: "Approximate", field: "properties.approximate", sorter: "string", headerSort: false, headerFilter: true, visible: false}, // just for filtering on
-                {title: "Year", field: "properties.year", sorter: "string", headerSort: true, headerFilter: true, visible: true},
+                    }
+                },
+                {
+                    title: "Measurer",
+                    field: "properties.measurer",
+                    sorter: "string",
+                    headerSort: true,
+                    headerFilter: true
+                },
+                {
+                    title: "Expired",
+                    field: "properties.expired",
+                    sorter: "string",
+                    headerSort: true,
+                    headerFilter: true,
+                    visible: false
+                }, // just for filtering on
+                {
+                    title: "Approximate",
+                    field: "properties.approximate",
+                    sorter: "string",
+                    headerSort: false,
+                    headerFilter: true,
+                    visible: false
+                }, // just for filtering on
+                {
+                    title: "Year",
+                    field: "properties.year",
+                    sorter: "string",
+                    headerSort: true,
+                    headerFilter: true,
+                    visible: true
+                },
                 {
                     title: "Actions",
-                    formatter: function(cell) {
+                    formatter: function (cell) {
                         const data = cell.getRow().getData();
+                        if (data.properties.approximate) {
+                            return ''
+                        }
                         return `
                 <div class="d-flex gap-2">
                 <a href="https://www.google.com/maps/place/${data.geometry.coordinates[1]},${data.geometry.coordinates[0]}" target="_blank" class="link-secondary">
@@ -538,7 +590,9 @@ export class CoursesView extends LitElement {
         });
 
         this.table.on('dataSorted', (sorters) => {
-            sessionStorage.setItem('tableSorts', JSON.stringify(this.sorts.map(value => {return {dir: value.dir, params: value.params}})));
+            sessionStorage.setItem('tableSorts', JSON.stringify(this.sorts.map(value => {
+                return {dir: value.dir, params: value.params}
+            })));
             console.log(this.sorts)
         });
 
@@ -551,6 +605,7 @@ export class CoursesView extends LitElement {
 
     matchMapToTableData(rows) {
         console.log("Match")
+        if (!this.calibrationCourses || !this.calibrationCourseLines || !this.map || !this.table) return;
         // Extract the IDs of all visible rows after filtering
         const visibleRowIds = rows.map(row => row.getData().properties.certificateId);
 
@@ -647,10 +702,9 @@ export class CoursesView extends LitElement {
         }
     }
 
-    handleIncludeExpired(e)
-    {
+    handleIncludeExpired(e) {
         if (!this.isFilterActive("properties.expired", "=", false)) {
-            this.filters = [...this.filters, {field: "properties.expired", type: "=", value:false}];
+            this.filters = [...this.filters, {field: "properties.expired", type: "=", value: false}];
         } else {
             this.filters = this.filters.filter(value => value.field !== "properties.expired");
         }
@@ -665,6 +719,7 @@ export class CoursesView extends LitElement {
             filter.value === value
         );
     }
+
     openPopupFromHash() {
         if (!this.openCourse || !this.mapLoaded) return;
 
@@ -709,7 +764,9 @@ export class CoursesView extends LitElement {
         }
 
         if (changedProperties.has("filters")) {
-            this.filters.map(filter => {this.table.addFilter(filter.field, filter.type, filter.value);})
+            this.filters.map(filter => {
+                this.table.addFilter(filter.field, filter.type, filter.value);
+            })
             this.table.getFilters().map(filter => {
                 if (!this.isFilterActive(filter.field, filter.type, filter.value)) {
                     this.table.removeFilter(filter.field, filter.type, filter.value);
@@ -732,54 +789,63 @@ export class CoursesView extends LitElement {
 
     render() {
         return html`
-      <div class="container">
-        <div class="btn-toolbar gap-2 mb-2 row align-items-center" role="toolbar">
-          <div class="input-group">
-            <label class="input-group-text" for="states-select">State</label>
-            <select class="form-select" id="states-select" @change=${this.handleStateChange}>
-              <option value="">All States</option>
-              ${map(this.states, state => html`
-                <option value=${state}>${state}</option>
-              `)}
-            </select>
-          </div>
+            <div class="container">
+                <style>
+                    ${this.constructor.styles}
+                </style>
+                <div class="btn-toolbar gap-2 mb-2 row align-items-center" role="toolbar">
+                    <div class="input-group">
+                        <label class="input-group-text" for="states-select">State</label>
+                        <select class="form-select" id="states-select" @change=${this.handleStateChange}>
+                            <option value="">All States</option>
+                            ${map(this.states, state => html`
+                                <option value=${state}>${state}</option>
+                            `)}
+                        </select>
+                    </div>
 
-          <div class="input-group">
-            <label class="input-group-text" for="locations-select">Location</label>
-            <select class="form-select" id="locations-select" @change=${this.handleLocationChange}>
-              <option value="">All Locations</option>
-              ${map(this.locations, location => html`
-                <option value=${location}>${location}</option>
-              `)}
-            </select>
-          </div>
+                    <div class="input-group">
+                        <label class="input-group-text" for="locations-select">Location</label>
+                        <select class="form-select" id="locations-select" @change=${this.handleLocationChange}>
+                            <option value="">All Locations</option>
+                            ${map(this.locations, location => html`
+                                <option value=${location}>${location}</option>
+                            `)}
+                        </select>
+                    </div>
 
-          <div class="col-auto">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="include-expired" value="include-expired" .checked="${!this.isFilterActive('properties.expired', "=", false)}" @change=${this.handleIncludeExpired}>
-                <label class="form-check-label" for="include-expired">
-                  Include Expired
-                </label>
-              </div>
-          </div>
-        </div>
-        
-        <div class="map-table-container">
-          <div id="map"></div>
-          <div id="courses-table" class="table-sm"></div>
-        </div>
-      </div>
-      <div class="row mt-4">
-        <div class="col-lg-9">
-          ${this.dataLoading ? html`<div class="spinner-border" role="status">` :
-                  html`<stacked-bar-chart .data="${this.filteredCourses}"></stacked-bar-chart>`}
-        </div>
-        <div class="col-lg-3">
-          ${this.dataLoading ? html`<div class="spinner-border" role="status">` :
-                  html`<measurer-stats .data="${this.filteredCourses}" .limit="${10}"></measurer-stats>`}
-        </div>
-      </div>
-    `;
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="include-expired" value="include-expired"
+                                   .checked="${!this.isFilterActive('properties.expired', "=", false)}"
+                                   @change=${this.handleIncludeExpired}>
+                            <label class="form-check-label" for="include-expired">
+                                Include Expired
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="map-table-container">
+                    ${this.mapContainer}
+                    ${this.tableContainer}
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-lg-9">
+                    ${this.dataLoading ? html`
+                                <div class="spinner-border" role="status">` :
+                            html`
+                                <stacked-bar-chart .data="${this.filteredCourses}"></stacked-bar-chart>`}
+                </div>
+                <div class="col-lg-3">
+                    ${this.dataLoading ? html`
+                                <div class="spinner-border" role="status">` :
+                            html`
+                                <measurer-stats .data="${this.filteredCourses}" .limit="${10}"></measurer-stats>`}
+                </div>
+            </div>
+        `;
     }
 }
 
