@@ -292,7 +292,10 @@ export class StackedBarChart extends LitElement {
         // Add axes
         svg.append('g')
             .attr('transform', `translate(0,${this.height - this.margin.bottom})`)
-            .call(d3.axisBottom(x).tickSizeOuter(0))
+            .call(d3.axisBottom(x)
+                .tickSizeOuter(0)
+                .tickFormat(d => `'${String(d).slice(2)}`)
+            )
             .call(g => g.append('text')
                 .attr('x', width / 2)
                 .attr('y', 40)
@@ -300,7 +303,6 @@ export class StackedBarChart extends LitElement {
                 .attr('text-anchor', 'middle')
                 .attr("class","h6")
                 .attr('font-size', '13px')
-
                 .text('Year'));
 
         // Modify Y-axis to only display integer values
