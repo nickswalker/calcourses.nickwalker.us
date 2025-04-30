@@ -8,5 +8,11 @@
 
 If you find an issue with a course:
 
-* Ensure the course entry in the USATF database is correct. Contact your certifier to make corrections
-* Open an issue or comment in the measurers' forum describing the problem and the fix
+* Details like course length, city and state, were pulled directly from the USATF database, so ensure the database entry is correct. Contact [your regional certifier](https://www.rrtc.net/Certifiers/Certifiers.html) to make corrections to database errors.
+* If the database entry is correct, open an issue or [comment in the measurers' forum](https://measure.infopop.cc/topic/yet-another-map-of-calibration-courses?reply=730081515202239286#730081515202239286) describing the problem and the fix.
+
+If you have a more precise location for a course, especially the GPS coordinates of the end points, please send them via the forum.
+
+### Detailed Course Locations
+
+This repo's `[data/additional_data.geojson]` has GPS coordinates for the endpoints of a small number of courses. If you
