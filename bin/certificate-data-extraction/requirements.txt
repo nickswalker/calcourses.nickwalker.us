@@ -1,0 +1,7 @@
+setuptools
+paddlepaddle
+paddleocr
+PyPDF2
+opencv-python
+numpy
+PyMuPDF

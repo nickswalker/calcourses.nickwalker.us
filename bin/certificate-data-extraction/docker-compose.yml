@@ -1,0 +1,13 @@
+services:
+  # PaddleOCR service for text extraction
+  paddleocr:
+    image: paddlepaddle/paddleocr:latest
+    volumes:
+      - ./data:/app/data
+      - ./extract.py:/app/extract.py
+      - ./requirements.txt:/app/requirements.txt
+    command: >
+      sh -c "pip install -r requirements.txt && python extract.py"
+    environment:
+      - USE_GPU=false
+      - ENABLE_MKLDNN=true
