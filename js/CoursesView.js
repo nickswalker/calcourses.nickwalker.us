@@ -30,37 +30,14 @@ Tabulator.registerModule([
 
 import {StackedBarChart} from "./StackedBarChart.js";
 import {MeasurerStats} from "./MeasurerStats.js";
+import {FrameControl} from "./FrameControl.js";
+import {CoordinateOverlayControl} from "./CoordinateOverlayControl.js";
 
-/**
- * Custom Home Control for MapLibre
- */
-class HomeControl {
-    onAdd(map) {
-        this.map = map;
-        this.container = document.createElement('div');
-        this.container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
-
-        this.container.innerHTML = `
-      <div class="tools-box">
-        <button>
-          <span class="maplibregl-ctrl-icon" aria-hidden="true" title="Zoom to fit"></span>
-        </button>
-      </div>
-    `;
-        this.container.querySelector("span").style.backgroundImage = "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDMwIDMwIj4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xIHsKICAgICAgICBmaWxsOiAjMzMzOwogICAgICAgIHN0cm9rZS13aWR0aDogMHB4OwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xOCw4aDNjLjYsMCwxLC40LDEsMXYzYzAsLjYuNCwxLDEsMWgxYy42LDAsMS0uNCwxLTF2LTZjMC0uNi0uNC0xLTEtMWgtNmMtLjYsMC0xLC40LTEsMXYxYzAsLjYuNCwxLDEsMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik04LDEydi0zYzAtLjYuNC0xLDEtMWgzYy42LDAsMS0uNCwxLTF2LTFjMC0uNi0uNC0xLTEtMWgtNmMtLjYsMC0xLC40LTEsMXY2YzAsLjYuNCwxLDEsMWgxYy42LDAsMS0uNCwxLTFaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjIsMTh2M2MwLC42LS40LDEtMSwxaC0zYy0uNiwwLTEsLjQtMSwxdjFjMCwuNi40LDEsMSwxaDZjLjYsMCwxLS40LDEtMXYtNmMwLS42LS40LTEtMS0xaC0xYy0uNiwwLTEsLjQtMSwxWiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEyLDIyaC0zYy0uNiwwLTEtLjQtMS0xdi0zYzAtLjYtLjQtMS0xLTFoLTFjLS42LDAtMSwuNC0xLDF2NmMwLC42LjQsMSwxLDFoNmMuNiwwLDEtLjQsMS0xdi0xYzAtLjYtLjQtMS0xLTFaIi8+Cjwvc3ZnPg==')";
-        return this.container;
-    }
-
-    onRemove() {
-        this.container.parentNode.removeChild(this.container);
-        this.map = undefined;
-    }
-}
 
 /**
  * Convert a map feature to HTML description for the popup
  */
-function featureToDescription(feature) {
+function featureToDescription(feature, line) {
     const properties = feature.properties;
     let expiredText = ""
     if (properties.expired) {
@@ -74,6 +51,7 @@ function featureToDescription(feature) {
       <a href="${properties.certificateLink}" target="_blank" data-goatcounter-click="ext-cert-${properties.certificateId}">${properties.certificateId}</a>
       ${properties.city}, ${properties.state}<br>
       Measurer: ${properties.measurer}<br>
+      ${line ? `Coords: <br>${line.geometry.coordinates[0][1].toPrecision(9)}, ${line.geometry.coordinates[0][0].toPrecision(9)}<br>${line.geometry.coordinates[1][1].toPrecision(9)}, ${line.geometry.coordinates[1][0].toPrecision(9)} <br>` : ''}
       <div class="d-flex flex-row gap-2">
       ${properties.approximate ? "<span class='text-danger'>Location Approximate</span>" : 
             `<a href="https://www.google.com/maps/place/${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}">
@@ -153,6 +131,8 @@ export class CoursesView extends LitElement {
         openCourse: {type: String, state: true},
         approximateOnly: {type: Boolean, state: true},
         dataLoading: {type: Boolean, state: true},
+        geolocationCoordinates: {type: Array, state: true},
+        isGeolocationEnabled: {type: Boolean, state: true},
     };
 
     constructor() {
@@ -169,12 +149,19 @@ export class CoursesView extends LitElement {
         this.mapLoaded = false;
         this.openCourse = undefined;
         this.dataLoading = true;
-        this.mapContainer = document.createElement("div")
-        this.mapContainer.classList.add("mb-1")
-        this.mapContainer.id = "map";
+        this.dataLoadingPromise = new Promise(resolve => {
+            this.dataLoadingResolve = resolve;
+        });
+        this.tableLoadingPromise = new Promise(resolve => {
+            this.tableLoadingResolve = resolve;
+        });
+        this.mapLoadingPromise = new Promise(resolve => {
+            this.mapLoadingResolve = resolve;
+        });
         this.tableContainer = document.createElement("div")
         this.tableContainer.id = "courses-table";
         this.tableContainer.classList.add("table-sm")
+        this.geolocationCoordinates = null;
 
     }
 
@@ -201,10 +188,11 @@ export class CoursesView extends LitElement {
         if (urlHash) {
             this.openCourse = urlHash.substring(1);
         }
-        this.initializeMap();
-        this.initializeTable();
 
-        this.loadData();
+        this.loadData().then(() => {
+            this.dataLoadingResolve(true);
+            this.dataLoading = false;
+        });
         window.addEventListener("hashchange", () => {
             const urlHash = location.hash;
             if (urlHash !== this.openCourse) {
@@ -221,6 +209,19 @@ export class CoursesView extends LitElement {
             this.approximateOnly = false;
             this.filters = this.filters.filter(filter => filter.field !== "properties.approximate");
         }
+    }
+
+    firstUpdated() {
+        // These need the DOM to be fully initialized, which happens sometime after connectedCallback (DOM connection)
+        this.initializeMap();
+        this.initializeTable();
+        Promise.all([this.tableLoadingPromise, this.dataLoadingPromise]).then(() => {
+            this.table.replaceData(this.calibrationCourses)
+        })
+        Promise.all([this.mapLoadingPromise, this.tableLoadingPromise, this.dataLoadingPromise]).then(() => {
+          this.matchMapToTableData(this.table.getRows())
+        })
+
     }
 
     async loadData() {
@@ -247,7 +248,6 @@ export class CoursesView extends LitElement {
             this.calibrationCourseLines = courseLinesData.features;
 
             this.processData();
-            this.table.replaceData(this.calibrationCourses)
         } catch (error) {
             console.error('Error loading calibration courses data:', error);
             this.renderError(error);
@@ -304,7 +304,7 @@ export class CoursesView extends LitElement {
         const bearing = Number(sessionStorage.getItem('mapBearing')) || 0;
 
         this.map = new maplibregl.Map({
-            container: this.mapContainer,
+            container: this.querySelector('#map'),
             style: this.styleUrl,
             center,
             zoom,
@@ -315,17 +315,21 @@ export class CoursesView extends LitElement {
 
         this.map.addControl(new maplibregl.NavigationControl(), 'top-right');
         this.map.addControl(new maplibregl.FullscreenControl(), 'top-right');
-        this.map.addControl(new maplibregl.GeolocateControl({
+        const coordinateOverlay = new CoordinateOverlayControl(()=> {
+            return this.geolocationCoordinates
+        })
+        this.map.addControl(coordinateOverlay, 'bottom-left');
+        const geolocateControl = new maplibregl.GeolocateControl({
             positionOptions: {enableHighAccuracy: true},
             trackUserLocation: true
-        }), 'top-right');
+        })
+        this.map.addControl(geolocateControl, 'top-right');
 
-        this.homeControl = new HomeControl();
-        this.map.addControl(this.homeControl);
+        this.frameControl = new FrameControl();
+        this.map.addControl(this.frameControl);
 
         // Set up event listeners after map loads
         this.map.on('load', () => {
-           this.map.resize()
             // Create popup for displaying course information
             this.popup = new maplibregl.Popup({
                 closeButton: true,
@@ -349,9 +353,9 @@ export class CoursesView extends LitElement {
 
                 const popupNode = document.createElement('div');
                 popupNode.className = 'course-popup';
-
+                const matchingLine = this.calibrationCourseLines.find(line => line.properties.certificateId === feature.properties.certificateId);
                 // Render the HTML description into the node
-                const description = featureToDescription(feature);
+                const description = featureToDescription(feature, matchingLine);
                 popupNode.innerHTML = description;
 
                 this.popup
@@ -410,8 +414,17 @@ export class CoursesView extends LitElement {
                     coursesSource.getClusterLeaves(clusterId).then((leaves) => {
                         const coordinates = features[0].geometry.coordinates;
 
-                        let description = leaves.sort((a, b) => a.properties.year < b.properties.year).map(leave => featureToDescription(leave)
-                        );
+                        leaves = leaves.sort((a, b) => a.properties.year < b.properties.year)
+                        const courseLines = leaves.map(leave => {
+                            return this.calibrationCourseLines.find(line => line.properties.certificateId === leave.properties.certificateId);
+                        });
+                        // Zip and iterate over the two arrays
+                        let description = leaves.map((leave, index) => {
+                            const line = courseLines[index];
+                            return featureToDescription(leave, line);
+                        });
+
+
                         description = description.reduce((a, b) => a + "<hr/>" + b);
                         const popupNode = document.createElement('div');
                         popupNode.className = 'course-popup';
@@ -437,11 +450,14 @@ export class CoursesView extends LitElement {
             this.map.on('mouseleave', 'clusters', () => {
                 this.map.getCanvas().style.cursor = '';
             });
-            // Mark map as loaded to update UI
-            this.mapLoaded = true;
 
-            // Setup home control action
-            this.homeControl.container.addEventListener('click', () => {
+            geolocateControl.on('geolocate', (e) => {
+                this.geolocationCoordinates = e.coords
+                coordinateOverlay.update(e.coords);
+            })
+
+
+            this.frameControl.container.addEventListener('click', () => {
                 this.zoomToFilteredFeatures();
             });
         });
@@ -453,6 +469,11 @@ export class CoursesView extends LitElement {
             sessionStorage.setItem('mapPitch', JSON.stringify(this.map.getPitch()));
             sessionStorage.setItem('mapBearing', JSON.stringify(this.map.getBearing()));
         });
+
+        this.map.once('idle', () => {
+            this.mapLoaded = true;
+            this.mapLoadingResolve(true);
+        })
     }
 
     initializeTable() {
@@ -601,10 +622,13 @@ export class CoursesView extends LitElement {
             // Reset to show all features
             //this.matchMapToTableData(this.table.getRows())
         });
+        this.table.on("tableBuilt", () => {
+            this.tableLoadingResolve(true);
+        })
     }
 
     matchMapToTableData(rows) {
-        console.log("Match")
+        if (!this.map || !this.map.isStyleLoaded()) return;
         if (!this.calibrationCourses || !this.calibrationCourseLines || !this.map || !this.table) return;
         // Extract the IDs of all visible rows after filtering
         const visibleRowIds = rows.map(row => row.getData().properties.certificateId);
@@ -747,7 +771,8 @@ export class CoursesView extends LitElement {
         // Create and show popup
         const popupNode = document.createElement('div');
         popupNode.className = 'course-popup';
-        const description = featureToDescription(targetFeature);
+        const matchingLine = this.calibrationCourseLines.find(line => line.properties.certificateId === targetFeature.properties.certificateId);
+        const description = featureToDescription(targetFeature, matchingLine);
         popupNode.innerHTML = description;
         this.popup
             .setLngLat(coordinates)
@@ -827,7 +852,7 @@ export class CoursesView extends LitElement {
                 </div>
 
                 <div class="map-table-container">
-                    ${this.mapContainer}
+                  <div id="map"></div>
                     ${this.tableContainer}
                 </div>
             </div>
