@@ -461,6 +461,42 @@ export class CoursesView extends LitElement {
             this.frameControl.container.addEventListener('click', () => {
                 this.zoomToFilteredFeatures();
             });
+
+            // Right-click / Long-press GPS popup
+            this.map.on('contextmenu', (e) => {
+                const coordinates = e.lngLat;
+                const popupNode = document.createElement('div');
+                popupNode.innerHTML = this._formatCoordsForPopup(coordinates);
+
+                new maplibregl.Popup()
+                    .setLngLat(coordinates)
+                    .setDOMContent(popupNode)
+                    .addTo(this.map);
+            });
+
+            // Long-press detection for mobile
+            let touchTimer;
+            this.map.on('touchstart', (e) => {
+                if (e.points.length !== 1) return;
+                touchTimer = setTimeout(() => {
+                    const coordinates = e.lngLat;
+                    const popupNode = document.createElement('div');
+                    popupNode.innerHTML = this._formatCoordsForPopup(coordinates);
+
+                    new maplibregl.Popup()
+                        .setLngLat(coordinates)
+                        .setDOMContent(popupNode)
+                        .addTo(this.map);
+                }, 600);
+            });
+
+            this.map.on('touchend', () => {
+                clearTimeout(touchTimer);
+            });
+
+            this.map.on('touchmove', () => {
+                clearTimeout(touchTimer);
+            });
         });
 
         // Save map state on move
@@ -475,6 +511,32 @@ export class CoursesView extends LitElement {
             this.mapLoaded = true;
             this.mapLoadingResolve(true);
         })
+    }
+
+    _formatCoordsForPopup(lngLat) {
+        const lat = lngLat.lat;
+        const lng = lngLat.lng;
+        return `
+            <div class="p-2">
+                <strong>GPS Coordinates</strong><br>
+                ${lat.toFixed(6)}, ${lng.toFixed(6)}<br>
+                <span class="text-secondary small">
+                    ${this._toDMS(lat, 'NS')} ${this._toDMS(lng, 'EW')}
+                </span>
+            </div>
+        `;
+    }
+
+    _toDMS(deg, axis) {
+        const abs = Math.abs(deg);
+        const d = Math.floor(abs);
+        const mFloat = (abs - d) * 60;
+        const m = Math.floor(mFloat);
+        const sFloat = (mFloat - m) * 60;
+        const s = sFloat.toFixed(1);
+
+        const dir = deg >= 0 ? axis[0] : axis[1];
+        return `${d}° ${m}' ${s}" ${dir}`;
     }
 
     initializeTable() {
