@@ -18,7 +18,7 @@ def extract_url_from_anchor(html_string):
 
 def remove_calibration_references(text):
     # Pattern to match various forms of calibration course references
-    calibration_pattern = r'\s+-?\s*(?:calibration\s+course|calibration|cal\.?\s*course|cal\s+crse)'
+    calibration_pattern = r'\s+-?\s*(?:calibration\s+courses?|calibration|cal\.?\s*courses?|cal\s+crses?)'
 
     # Remove all matches from the text
     result = re.sub(calibration_pattern, '', text, flags=re.IGNORECASE)
@@ -30,35 +30,56 @@ def remove_measurements(text):
     # Pattern to match:
     # 1. Optional whitespace
     # 2. Optional hyphen with optional surrounding whitespace
-    # 3. Digits with optional decimal portion
-    # 4. Unit (m or ft)
-    measurement_pattern = r'\s*(?:\s*-\s*)?\d+(?:\.\d+)?(?:m|ft)'
+    # 3. Digits with optional decimal portion OR fractions
+    # 4. Unit (m, ft, mi, km)
+
+
+    measurement_pattern = r'\s*(?:\s*-\s*)?(?:\d+(?:\.\d+)?|\d+\s*/\s*\d+)(?:\s*(?:m|ft|mi|km)\b)'
 
     # Remove all matches
     result = re.sub(measurement_pattern, '', text, flags=re.IGNORECASE)
-
     return result
 
 
 def format_measurements(text):
+    # Pre-process text representations of fractions
+    # Handle "Quarter Mile", "Half Mile", "A Quarter Mile", "One Half Mile" etc.
+    # Look ahead for mile/miler/mi to avoid replacing "Half" in "Half Moon Bay"
+    text = re.sub(r'\b(?:one\s+|a\s+)?quarter[\s-]*(?=mil(?:e|er)s?|mi\b)', '1/4 ', text, flags=re.IGNORECASE)
+    text = re.sub(r'\b(?:one\s+|a\s+)?half[\s-]*(?=mil(?:e|er)s?|mi\b)', '1/2 ', text, flags=re.IGNORECASE)
+
+    # Number pattern: Digits with optional decimal portion OR fractions
+    number_pattern = r'(\d+(?:\.\d+)?|\d+\s*/\s*\d+)'
+
     # Pattern 1: Numbers followed by optional space/dash then metric units
-    pattern_metric = r'(\d+(?:\.\d+)?)[\s-]?(meters?|mtr|m)'
+    pattern_metric = number_pattern + r'[ \s-]?(meters?|mtr|m)\b'
 
     # Pattern 2: Numbers followed by various feet indicators
-    pattern_feet = r'(\d+(?:\.\d+)?)[\s-]?(feet|foot|ft\.?|\')'
+    pattern_feet = number_pattern + r'[ \s-]?(?:(?:feet|foot|ft\.?)\b|\')'
+
+    # Pattern 3: Numbers followed by mile indicators
+    pattern_mile = number_pattern + r'[ \s-]?(?:miles?|milers?|mi)\b'
+
+
+    def clean_number(num_str):
+        # Remove spaces in fractions
+        return re.sub(r'\s+', '', num_str)
+
 
     def replace_metric(match):
-        number = match.group(1)
-        return f"{number}m"
+        return f"{clean_number(match.group(1))}m"
 
     def replace_feet(match):
-        number = match.group(1)
-        return f"{number}ft"
+        return f"{clean_number(match.group(1))}ft"
 
-    # Apply both transformations
+    def replace_mile(match):
+        return f"{clean_number(match.group(1))}mi"
+    # Apply transformations
     result = re.sub(pattern_metric, replace_metric, text, flags=re.IGNORECASE)
+
     result = re.sub(pattern_feet, replace_feet, result, flags=re.IGNORECASE)
 
+    result = re.sub(pattern_mile, replace_mile, result, flags=re.IGNORECASE)
     return result
 
 
@@ -135,12 +156,14 @@ def tsv_to_geojson(input_file):
                 continue
 
             try:
-                name = row['Name']
+                name = row['Name'].replace(' (EXPIRED)','')
                 name_abbreviated = name
                 name_abbreviated = remove_calibration_references(name_abbreviated)
                 name_abbreviated = name_abbreviated.replace(" yards", "yd")
                 name_abbreviated = format_measurements(name_abbreviated)
                 name_abbreviated = remove_measurements(name_abbreviated)
+                # Remove empty parentheses or - () that might be left over
+                name_abbreviated = re.sub(r'\s*(?:-\s*)?\(\s*\)', '', name_abbreviated)
                 name_abbreviated = standardize_road_types(name_abbreviated)
                 # Clean up any extra spaces
                 name_abbreviated = re.sub(r'\s+', ' ', name_abbreviated).strip()

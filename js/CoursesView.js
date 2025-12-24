@@ -131,6 +131,8 @@ export class CoursesView extends LitElement {
         dataLoading: {type: Boolean, state: true},
         geolocationCoordinates: {type: Array, state: true},
         isGeolocationEnabled: {type: Boolean, state: true},
+        selectedState: {type: String, state: true},
+        selectedLocation: {type: String, state: true}
     };
 
     constructor() {
@@ -160,7 +162,8 @@ export class CoursesView extends LitElement {
         this.tableContainer.id = "courses-table";
         this.tableContainer.classList.add("table-sm")
         this.geolocationCoordinates = null;
-
+        this.selectedState = "";
+        this.selectedLocation = "";
     }
 
     createRenderRoot() {
@@ -603,16 +606,39 @@ export class CoursesView extends LitElement {
             this.table.footerManager.element.querySelector("#course-count").innerText = this.table.getData().length;
             this.table.footerManager.element.querySelector("#after-filter-count").innerText = rows.length
             this.matchMapToTableData(rows)
-            sessionStorage.setItem('tableFilters', JSON.stringify(this.filters));
+
+            const stateFilter = this.table.getHeaderFilters().find(f => f.field === "properties.state");
+            const cityFilter = this.table.getHeaderFilters().find(f => f.field === "properties.city");
+
+            // Update state selection based on filter
+            if (stateFilter && this.states.includes(stateFilter.value)) {
+                this.selectedState = stateFilter.value;
+            } else {
+                this.selectedState = "";
+            }
+
+            // Update location selection based on filter
+            if (cityFilter && stateFilter) {
+                const potentialLocation = `${cityFilter.value}, ${stateFilter.value}`;
+                if (this.locations.includes(potentialLocation)) {
+                    this.selectedLocation = potentialLocation;
+                } else {
+                    this.selectedLocation = "";
+                }
+            } else {
+                this.selectedLocation = "";
+            }
+
+            this.headerFilters = this.table.getHeaderFilters();
+
+            sessionStorage.setItem('tableFilters', JSON.stringify(this.table.getFilters()));
             sessionStorage.setItem('tableHeaderFilters', JSON.stringify(this.headerFilters));
-            console.log(this.filters, this.headerFilters);
         });
 
         this.table.on('dataSorted', (sorters) => {
             sessionStorage.setItem('tableSorts', JSON.stringify(this.sorts.map(value => {
                 return {dir: value.dir, params: value.params}
             })));
-            console.log(this.sorts)
         });
 
         // Reset map when filters are cleared
@@ -670,22 +696,23 @@ export class CoursesView extends LitElement {
 
     handleStateChange(e) {
         const value = e.target.value;
+        this.selectedState = value;
 
         if (value) {
             this.table.setHeaderFilterValue("properties.state", value);
-            this.headerFilters = this.headerFilters.filter(filter => filter.field === "properties.state");
+            this.headerFilters = this.headerFilters.filter(filter => filter.field !== "properties.state");
             // This will trigger dataFiltered and update the map
             this.headerFilters = [...this.headerFilters, {field: "properties.state", type: "=", value: value}];
             this.zoomToFilteredFeatures();
         } else {
             this.table.setHeaderFilterValue("properties.state", "");
-            this.headerFilters = this.headerFilters.filter(filter => filter.field === "properties.state");
+            this.headerFilters = this.headerFilters.filter(filter => filter.field !== "properties.state");
         }
-        this.requestUpdate()
     }
 
     handleLocationChange(e) {
         const value = e.target.value;
+        this.selectedLocation = value;
 
         if (value) {
             const [city, state] = value.split(', ');
@@ -707,7 +734,6 @@ export class CoursesView extends LitElement {
             this.table.setHeaderFilterValue("properties.city", "");
             this.table.setHeaderFilterValue("properties.state", "");
         }
-        this.requestUpdate()
     }
 
     renderError(error) {
@@ -819,7 +845,7 @@ export class CoursesView extends LitElement {
                 <div class="btn-toolbar gap-2 mb-2 row align-items-center" role="toolbar">
                     <div class="input-group">
                         <label class="input-group-text" for="states-select">State</label>
-                        <select class="form-select" id="states-select" @change=${this.handleStateChange}>
+                        <select class="form-select" id="states-select" .value=${this.selectedState} @change=${this.handleStateChange}>
                             <option value="">All States</option>
                             ${map(this.states, state => html`
                                 <option value=${state}>${state}</option>
@@ -829,7 +855,7 @@ export class CoursesView extends LitElement {
 
                     <div class="input-group">
                         <label class="input-group-text" for="locations-select">Location</label>
-                        <select class="form-select" id="locations-select" @change=${this.handleLocationChange}>
+                        <select class="form-select" id="locations-select" .value=${this.selectedLocation} @change=${this.handleLocationChange}>
                             <option value="">All Locations</option>
                             ${map(this.locations, location => html`
                                 <option value=${location}>${location}</option>
