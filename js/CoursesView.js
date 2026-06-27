@@ -415,7 +415,7 @@ export class CoursesView extends LitElement {
                     coursesSource.getClusterLeaves(clusterId).then((leaves) => {
                         const coordinates = features[0].geometry.coordinates;
 
-                        leaves = leaves.sort((a, b) => a.properties.year < b.properties.year)
+                        leaves = leaves.sort((a, b) => b.properties.year - a.properties.year)
                         const courseLines = leaves.map(leave => {
                             return this.calibrationCourseLines.find(line => line.properties.certificateId === leave.properties.certificateId);
                         });
