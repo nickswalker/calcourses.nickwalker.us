@@ -1,6 +1,6 @@
 import {LitElement, html, css} from 'lit';
 import {map} from 'lit-html/directives/map.js';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import {
     Tabulator,
     EditModule,
@@ -545,7 +545,8 @@ export class CoursesView extends LitElement {
             data: [],
             pagination: true,
             paginationSize: 15,
-            layout: "fitDataFill",
+            height: "500px",
+            layout: "fitDataStretch",
             paginationSizeSelector: [10, 15, 25, 50, 100],
             placeholder: "No Data Available",
             groupBy: "properties.state", // Group by state
