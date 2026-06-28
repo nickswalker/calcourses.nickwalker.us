@@ -220,7 +220,7 @@ export class CoursesView extends LitElement {
             this.table.replaceData(this.calibrationCourses)
         })
         Promise.all([this.mapLoadingPromise, this.tableLoadingPromise, this.dataLoadingPromise]).then(() => {
-          this.matchMapToTableData(this.table.getRows())
+          this.matchMapToTableData(this.table.getRows("active"))
         })
 
     }
@@ -694,7 +694,7 @@ export class CoursesView extends LitElement {
 
             this.headerFilters = this.table.getHeaderFilters();
 
-            sessionStorage.setItem('tableFilters', JSON.stringify(this.table.getFilters()));
+            sessionStorage.setItem('tableFilters', JSON.stringify(this.filters));
             sessionStorage.setItem('tableHeaderFilters', JSON.stringify(this.headerFilters));
         });
 
@@ -719,7 +719,17 @@ export class CoursesView extends LitElement {
         if (!this.calibrationCourses || !this.calibrationCourseLines || !this.map || !this.table) return;
         // Extract the IDs of all visible rows after filtering
         const visibleRowIds = rows.map(row => row.getData().properties.certificateId);
+        this.matchMapToCourseIds(visibleRowIds);
+    }
 
+    matchMapToCourseData(courses) {
+        if (!this.map || !this.map.isStyleLoaded()) return;
+        if (!this.calibrationCourses || !this.calibrationCourseLines || !this.map || !this.table) return;
+        const visibleRowIds = courses.map(course => course.properties.certificateId);
+        this.matchMapToCourseIds(visibleRowIds);
+    }
+
+    matchMapToCourseIds(visibleRowIds) {
         // Filter the map features to only show those that match the visible rows
         const filteredFeatures = this.calibrationCourses.filter(feature =>
             visibleRowIds.includes(feature.properties.certificateId)
@@ -796,6 +806,7 @@ export class CoursesView extends LitElement {
             // This will trigger dataFiltered
             this.table.setHeaderFilterValue("properties.city", "");
             this.table.setHeaderFilterValue("properties.state", "");
+            setTimeout(() => this.matchMapToCourseData(this.table.getData("active")), 350);
         }
     }
 
@@ -814,12 +825,19 @@ export class CoursesView extends LitElement {
     }
 
     handleIncludeExpired(e) {
-        if (!this.isFilterActive("properties.expired", "=", false)) {
-            this.filters = [...this.filters, {field: "properties.expired", type: "=", value: false}];
-        } else {
-            this.filters = this.filters.filter(value => value.field !== "properties.expired");
-        }
+        this.setIncludeExpired(e.target.checked);
         this.requestUpdate()
+    }
+
+    setIncludeExpired(includeExpired) {
+        this.filters = this.filters.filter(value => value.field !== "properties.expired");
+        if (!includeExpired) {
+            this.filters = [...this.filters, {field: "properties.expired", type: "=", value: false}];
+        }
+    }
+
+    includeExpired() {
+        return !this.isFilterActive("properties.expired", "=", false);
     }
 
     isFilterActive(field, operator, value) {
@@ -929,7 +947,7 @@ export class CoursesView extends LitElement {
                     <div class="col-auto">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="include-expired" value="include-expired"
-                                   .checked="${!this.isFilterActive('properties.expired', "=", false)}"
+                                   .checked="${this.includeExpired()}"
                                    @change=${this.handleIncludeExpired}>
                             <label class="form-check-label" for="include-expired">
                                 Include Expired
