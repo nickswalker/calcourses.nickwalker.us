@@ -102,9 +102,10 @@ export class CoursesView extends LitElement {
             height: 100%;
         }
 
-        #courses-table {
-            overflow: auto;
-            height: 500px;
+        #courses-table .tabulator-row.tabulator-group {
+            position: sticky;
+            top: 0;
+            z-index: 3;
         }
 
         .course-popup {
