@@ -111,6 +111,7 @@ export class CoursesView extends LitElement {
         .course-popup {
             max-width: 300px;
         }
+
     `;
 
     static properties = {
@@ -586,8 +587,8 @@ export class CoursesView extends LitElement {
                         } else return `<span title="${data.properties.name}">${data.properties.nameAbbreviated}</span>`;
                     }
                 },
-                {title: "City", field: "properties.city", sorter: "string", headerSort: false, headerFilter: true},
-                {title: "State", field: "properties.state", sorter: "string", headerSort: false, headerFilter: true},
+                {title: "City", field: "properties.city", sorter: "string", headerSort: false, headerFilter: true, headerFilterFunc: "=", headerFilterPlaceholder: " "},
+                {title: "State", field: "properties.state", sorter: "string", headerSort: false, headerFilter: true, headerFilterFunc: "=", headerFilterPlaceholder: " "},
                 {
                     title: "Length",
                     field: "properties.courseLengthMeters",
@@ -711,6 +712,26 @@ export class CoursesView extends LitElement {
             //this.matchMapToTableData(this.table.getRows())
         });
         this.table.on("tableBuilt", () => {
+            ['properties.city', 'properties.state'].forEach(field => {
+                const headerCell = this.tableContainer.querySelector(`[tabulator-field="${field}"]`);
+                if (!headerCell) return;
+                const lock = (input) => {
+                    input.readOnly = true;
+                    input.tabIndex = -1;
+                    input.style.cursor = 'default';
+                    input.style.pointerEvents = 'none';
+                    input.style.color = '#6c757d';
+                    input.style.fontStyle = 'italic';
+                    input.style.background = "#eee";
+                    //input.style.borderColor = 'transparent';
+                };
+                const input = headerCell.querySelector('.tabulator-header-filter input');
+                if (input) lock(input);
+                new MutationObserver(() => {
+                    const el = headerCell.querySelector('.tabulator-header-filter input');
+                    if (el && !el.readOnly) lock(el);
+                }).observe(headerCell, {childList: true, subtree: true});
+            });
             this.tableLoadingResolve(true);
         })
     }
