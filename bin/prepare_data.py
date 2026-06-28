@@ -17,31 +17,34 @@ def extract_url_from_anchor(html_string):
 
 
 def remove_calibration_references(text):
-    # Pattern to match various forms of calibration course references
-    calibration_pattern = r'\s+-?\s*(?:calibration\s+courses?|calibration|cal\.?\s*courses?|cal\s+crses?)'
+    # (?:^|\s+) allows matching at start of string or after whitespace
+    # Covers: "Calibration Course", "Calibration", "Cal. Course", "Cal.", "CRSE.", etc.
+    calibration_pattern = r'(?:^|\s+)-?\s*(?:calibration\s+(?:courses?|crses?\.?)|calibration|cal\.?\s*courses?|cal\s+crses?\.?|cal\.|crses?\.?)'
 
-    # Remove all matches from the text
     result = re.sub(calibration_pattern, '', text, flags=re.IGNORECASE)
+
+    # Handle (Calibration course) in parentheses
+    result = re.sub(r'\s*\(calibration\s+courses?\)', '', result, flags=re.IGNORECASE)
 
     return result
 
 
 def remove_measurements(text):
-    # Pattern to match:
-    # 1. Optional whitespace
-    # 2. Optional hyphen with optional surrounding whitespace
-    # 3. Digits with optional decimal portion OR fractions
-    # 4. Unit (m, ft, mi, km)
+    # \.? at end consumes a trailing period left by "ft." after the unit is normalized
+    measurement_pattern = r'\s*(?:\s*-\s*)?(?:\d+(?:\.\d+)?|\d+\s*/\s*\d+)(?:\s*(?:m|ft|mi|km)\b)\.?'
 
-
-    measurement_pattern = r'\s*(?:\s*-\s*)?(?:\d+(?:\.\d+)?|\d+\s*/\s*\d+)(?:\s*(?:m|ft|mi|km)\b)'
-
-    # Remove all matches
     result = re.sub(measurement_pattern, '', text, flags=re.IGNORECASE)
+
+    # Remove parenthesized measurements like "- (304.8) Meters"
+    result = re.sub(r'\s*-?\s*\(\d+(?:\.\d+)?\)\s*(?:meters?|m|ft|feet|foot|miles?|mi|km)\b', '', result, flags=re.IGNORECASE)
+
     return result
 
 
 def format_measurements(text):
+    # Strip thousands separators so "1,000 ft" is treated as "1000 ft"
+    text = re.sub(r'(\d),(\d{3})(?=\D|$)', r'\1\2', text)
+
     # Pre-process text representations of fractions
     # Handle "Quarter Mile", "Half Mile", "A Quarter Mile", "One Half Mile" etc.
     # Look ahead for mile/miler/mi to avoid replacing "Half" in "Half Moon Bay"
@@ -136,8 +139,8 @@ def remove_unnecessary_periods(text):
     # Remove periods from compass directions
     result = re.sub(compass_pattern, r'\1', text)
 
-    # Remove periods from abbreviations
-    result = re.sub(abbrev_pattern, r'\1', result)
+    # Remove periods from abbreviations (case-insensitive to handle ST., RD., etc.)
+    result = re.sub(abbrev_pattern, r'\1', result, flags=re.IGNORECASE)
 
     return result
 
@@ -167,6 +170,9 @@ def tsv_to_geojson(input_file):
                 name_abbreviated = standardize_road_types(name_abbreviated)
                 # Clean up any extra spaces
                 name_abbreviated = re.sub(r'\s+', ' ', name_abbreviated).strip()
+                # Remove trailing stray punctuation (e.g. semicolons from malformed source data)
+                name_abbreviated = re.sub(r'[;,\s]+$', '', name_abbreviated)
+                name_abbreviated = name_abbreviated.rstrip('.')
                 feature = {
                     "type": "Feature",
                     "geometry": {
