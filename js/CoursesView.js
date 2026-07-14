@@ -346,8 +346,10 @@ export class CoursesView extends LitElement {
                 this.openCourse = undefined;
             })
 
+            const pointLayerIds = ['overview-point', 'unclustered-point'];
+
             // Show popup on hover
-            this.map.on('mouseenter', 'unclustered-point', (e) => {
+            const showPointPopup = (e) => {
                 this.map.getCanvas().style.cursor = 'pointer';
                 if (this.openCourse) return;
 
@@ -367,17 +369,17 @@ export class CoursesView extends LitElement {
                 if (!this.popup.isOpen()) {
                     this.popup.addTo(this.map)
                 }
-            });
+            };
 
             // Hide popup on mouse leave
-            this.map.on('mouseleave', 'unclustered-point', (e) => {
+            const hidePointPopup = () => {
                 this.map.getCanvas().style.cursor = '';
                 if (this.openCourse) return;
                 this.popup.remove();
-            });
+            };
 
             // Pin popup on click
-            this.map.on('click', 'unclustered-point', (e) => {
+            const pinPointPopup = (e) => {
                 const clickedId = e.features[0].properties.certificateId;
                 if (this.openCourse === clickedId) return;
                 this.openCourse = clickedId;
@@ -392,7 +394,12 @@ export class CoursesView extends LitElement {
                 if (!this.popup.isOpen()) {
                     this.popup.addTo(this.map)
                 }
+            };
 
+            pointLayerIds.forEach(layerId => {
+                this.map.on('mouseenter', layerId, showPointPopup);
+                this.map.on('mouseleave', layerId, hidePointPopup);
+                this.map.on('click', layerId, pinPointPopup);
             });
 
             // Handle cluster clicks
@@ -764,9 +771,11 @@ export class CoursesView extends LitElement {
         );
 
         // Update the map source with the filtered features
-        this.map.getSource("course-points").setData({
-            type: 'FeatureCollection',
-            features: filteredFeatures
+        ["course-points", "course-points-overview"].forEach(sourceId => {
+            this.map.getSource(sourceId).setData({
+                type: 'FeatureCollection',
+                features: filteredFeatures
+            });
         });
         this.map.getSource("course-lines").setData({
             type: 'FeatureCollection',

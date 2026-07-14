@@ -15,14 +15,27 @@
     },
     "course-points": {
       "type": "geojson",
-      "data": "",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
       "cluster": true,
       "clusterMaxZoom": 18,
-      "clusterRadius": 40
+      "clusterRadius": 8
+    },
+    "course-points-overview": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
     },
     "course-lines": {
       "type": "geojson",
-      "data": ""
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
     }
   },
   "sprite": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm",
@@ -7001,6 +7014,70 @@
       "minzoom": 12
     },
     {
+      "id": "overview-point",
+      "type": "circle",
+      "source": "course-points-overview",
+      "paint": {
+        "circle-color": [
+          "case",
+          ["get", "approximate"], "rgba(0, 0, 0, 0)",
+          "#AB2129"
+        ],
+        "circle-radius": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          2, 2.5,
+          10, 4
+        ],
+        "circle-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          2, 0.55,
+          10, 0.8
+        ],
+        "circle-stroke-width": 1.5,
+        "circle-stroke-color": "#AB2129",
+        "circle-stroke-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          2, 0.55,
+          10, 0.8
+        ]
+      },
+      "maxzoom": 10
+    },
+    {
+      "id": "overview-point-expired-label",
+      "type": "symbol",
+      "source": "course-points-overview",
+      "filter": ["==", ["get", "expired"], true],
+      "layout": {
+        "text-field": "X",
+        "text-line-height": 1.0,
+        "text-allow-overlap": true,
+        "text-font": ["Noto Sans Bold"],
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          2, 5,
+          6, 7,
+          10, 12
+        ]
+      },
+      "paint": {
+        "text-color": [
+          "case",
+          ["get", "approximate"], "#AB2129",
+          "#FFFFFF"
+        ]
+      },
+      "maxzoom": 10
+    },
+    {
       "id": "clusters",
       "type": "circle",
       "source": "course-points",
@@ -7017,8 +7094,9 @@
           100, 20
         ],
         "circle-stroke-width": 2,
-        "circle-stroke-color": "#333"
-      }
+        "circle-stroke-color": "#333333"
+      },
+      "minzoom": 10
     },
     {
       "id": "cluster-count",
@@ -7032,7 +7110,8 @@
       },
       "paint": {
         "text-color": "#ffffff"
-      }
+      },
+      "minzoom": 10
     },
     {
       "id": "unclustered-point",
@@ -7049,13 +7128,14 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          6, 4,
+          10, 4,
           12, 6,
           25, 8
         ],
         "circle-stroke-width": 2,
         "circle-stroke-color": "#AB2129"
-      }
+      },
+      "minzoom": 10
     },
 
     {
@@ -7085,7 +7165,8 @@
           ["get", "approximate"], "#AB2129",
           "#FFFFFF"
         ]
-      }
+      },
+      "minzoom": 10
     },
     {
       "id": "course-labels",
@@ -7112,7 +7193,7 @@
         "text-halo-width": 1,
         "text-opacity": ["case", ["get", "expired"], 0.85, 1.0]
       },
-      "minzoom": 8
+      "minzoom": 10
     }
   ]
 }
