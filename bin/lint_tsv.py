@@ -101,6 +101,17 @@ def detect_typoed_measurements(course_name):
     return None
 
 
+def is_city_all_caps(city):
+    """
+    Detect city names that are entirely in ALL CAPS.
+    Returns True if the city has at least one letter and every letter is uppercase.
+    """
+    if not city:
+        return False
+
+    return any(c.isalpha() for c in city) and city == city.upper()
+
+
 def lint_tsv(input_file, output_file, epsilon=10):  # epsilon in meters
     """
     Lint the TSV file and write results to a text file:
@@ -110,12 +121,14 @@ def lint_tsv(input_file, output_file, epsilon=10):  # epsilon in meters
     4. Find all courses with typoed measurements in their names
     5. List all courses where Color is 'PURPLE' (approximate location)
     6. Find all courses with duplicate certificate links
+    7. Find all courses with a City in ALL CAPS
     """
     courses = []
     empty_cert_links = []
     misspelled_courses = []
     typoed_measurement_courses = []
     purple_courses = []
+    all_caps_city_courses = []
 
     # Dictionary to track certificate links and which courses use them
     cert_links_to_courses = defaultdict(list)
@@ -160,6 +173,15 @@ def lint_tsv(input_file, output_file, epsilon=10):  # epsilon in meters
                         'id': course_id,
                         'name': course_name,
                         'typoed_measurement': typoed_measurement
+                    })
+
+                # Check for city names in ALL CAPS
+                if is_city_all_caps(row.get('City', '')):
+                    all_caps_city_courses.append({
+                        'id': course_id,
+                        'name': course_name,
+                        'city': row['City'],
+                        'state': row.get('State', 'N/A')
                     })
 
                 # Check for teal color (approximate location)
@@ -255,6 +277,13 @@ def lint_tsv(input_file, output_file, epsilon=10):  # epsilon in meters
                 f.write(f"{'-' * 50}\n")
         else:
             f.write("No courses with close coordinates found.\n")
+
+        f.write("\n=== COURSES WITH CITY IN ALL CAPS ===\n")
+        if all_caps_city_courses:
+            for course in all_caps_city_courses:
+                f.write(f"{course['id']}\t{course['name']}\t{course['city']}, {course['state']}\n")
+        else:
+            f.write("No courses with city in ALL CAPS found.\n")
 
         f.write("\n=== COURSES WITH APPROXIMATE LOCATION (PURPLE) ===\n")
         if purple_courses:
