@@ -28,7 +28,7 @@ Tabulator.registerModule([
     GroupRowsModule
 ]);
 
-import {StackedBarChart} from "./StackedBarChart.js";
+import {ExpirationChart} from "./ExpirationChart.js";
 import {MeasurerStats} from "./MeasurerStats.js";
 import {FrameControl} from "./FrameControl.js";
 import {CoordinateOverlayControl} from "./CoordinateOverlayControl.js";
@@ -997,7 +997,7 @@ export class CoursesView extends LitElement {
                     ${this.dataLoading ? html`
                                 <div class="spinner-border" role="status">` :
                             html`
-                                <stacked-bar-chart .data="${this.filteredCourses}"></stacked-bar-chart>`}
+                                <expiration-chart .data="${this.filteredCourses}"></expiration-chart>`}
                 </div>
                 <div class="col-lg-3">
                     ${this.dataLoading ? html`
