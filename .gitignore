@@ -1,4 +1,5 @@
 data/calibration_course*
+data/usatf_calibration_courses*
 data/last_updated.json
 data/*report.txt
 data/pdfs

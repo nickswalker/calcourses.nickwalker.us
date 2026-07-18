@@ -299,7 +299,7 @@ def main():
     data_dir = Path("data")
     data_dir.mkdir(exist_ok=True)
 
-    input_file = data_dir / "calibration_courses.tsv"
+    input_file = data_dir / "usatf_calibration_courses.tsv"
     output_file = data_dir / "calibration_qa_report.txt"
 
     if not Path(input_file).exists():

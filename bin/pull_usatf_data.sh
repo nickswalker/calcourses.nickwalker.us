@@ -2,7 +2,7 @@
 
 GOOGLE_SHEET_URL="https://docs.google.com/spreadsheets/d/137rMUUj72qlMxZXUVvEUF_c1r6dHB6pQqDXmffcnSbc"
 SHEET_ID="137rMUUj72qlMxZXUVvEUF_c1r6dHB6pQqDXmffcnSbc"
-OUTPUT_FILE="data/calibration_courses.tsv"
+OUTPUT_FILE="data/usatf_calibration_courses.tsv"
 TEMP_FILE="data/temp_sheet.tsv"
 
 echo "Starting update of calibration courses TSV from Google Sheet..."
