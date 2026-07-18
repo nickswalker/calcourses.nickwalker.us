@@ -7027,7 +7027,8 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          2, 2.5,
+          2, 1,
+          3, 2.5,
           10, 4
         ],
         "circle-opacity": [
@@ -7128,7 +7129,7 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          10, 4,
+          10, 2,
           12, 6,
           25, 8
         ],
