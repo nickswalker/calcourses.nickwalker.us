@@ -102,6 +102,49 @@
       .tabulator .tabulator-footer {
           background-color: #f8f9fa;
       }
+      .expiration-chart-plot {
+          position: relative;
+      }
+      .expiration-chart-plot svg {
+          display: block;
+          width: 100%;
+          height: auto;
+          overflow: visible;
+      }
+      .expiration-chart-bar {
+          fill: #AB2129;
+      }
+      .expiration-chart-baseline {
+          stroke: #dee2e6;
+          stroke-width: 1;
+      }
+      .expiration-chart-tick {
+          fill: #6c757d;
+          font-size: 11px;
+          font-variant-numeric: tabular-nums;
+      }
+      .expiration-chart-value {
+          fill: #495057;
+          font-size: 11px;
+          font-variant-numeric: tabular-nums;
+      }
+      .expiration-chart-hit {
+          fill: transparent;
+      }
+      .expiration-chart-tooltip {
+          position: absolute;
+          transform: translate(-50%, calc(-100% - 10px));
+          background: rgba(255, 255, 255, .97);
+          border: 1px solid #dee2e6;
+          border-radius: 6px;
+          padding: 6px 10px;
+          font-size: 12px;
+          line-height: 1.35;
+          white-space: nowrap;
+          pointer-events: none;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
+          z-index: 5;
+      }
       .constrain-width {
 
       }
