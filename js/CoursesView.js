@@ -366,10 +366,14 @@ export class CoursesView extends LitElement {
     connectedCallback() {
         super.connectedCallback()
         const urlParams = new URLSearchParams(window.location.search);
+        const visibleByDefault = name => urlParams.get(name) !== 'false';
         this.locationReviewEnabled = urlParams.get('locationReview') === 'true';
         this.reviewMode = this.locationReviewEnabled;
-        this.showProposedReviews = urlParams.get('showProposed') !== 'false';
-        this.showAcceptedReviews = urlParams.get('showAccepted') !== 'false';
+        this.showProposedReviews = visibleByDefault('proposed');
+        this.showAcceptedReviews = visibleByDefault('accepted');
+        this.showStreetLocations = visibleByDefault('street');
+        this.showApproximateLocations = visibleByDefault('approximate');
+        this.showExpiredCourses = visibleByDefault('expired');
         this.linesOnly = urlParams.get('linesOnly') === 'true';
 
         const savedSorts = JSON.parse(sessionStorage.getItem('tableSorts'));
@@ -383,6 +387,20 @@ export class CoursesView extends LitElement {
         const savedHeaderFilters = JSON.parse(sessionStorage.getItem('tableHeaderFilters'));
         if (savedHeaderFilters) {
             this.headerFilters = savedHeaderFilters;
+        }
+        const urlHeaderFilters = [
+            ['country', 'properties.country'],
+            ['state', 'properties.state'],
+            ['city', 'properties.city']
+        ];
+        const urlHeaderFields = new Set(urlHeaderFilters.map(([, field]) => field));
+        this.headerFilters = this.headerFilters.filter(filter => !urlHeaderFields.has(filter.field));
+        for (const [parameter, field] of urlHeaderFilters) {
+            if (!urlParams.has(parameter)) continue;
+            const value = urlParams.get(parameter);
+            if (value) {
+                this.headerFilters.push({field, type: '=', value});
+            }
         }
         const urlHash = location.hash;
         if (urlHash) {
@@ -1054,6 +1072,7 @@ export class CoursesView extends LitElement {
 
             sessionStorage.setItem('tableFilters', JSON.stringify(this.filters));
             sessionStorage.setItem('tableHeaderFilters', JSON.stringify(this.headerFilters));
+            this.syncFilterSearchParams();
         });
 
         this.table.on('dataSorted', (sorters) => {
@@ -1303,6 +1322,32 @@ export class CoursesView extends LitElement {
         if (item === 'accepted') this.showAcceptedReviews = !this.showAcceptedReviews;
         if (item === 'proposed' || item === 'accepted') this.applyReviewVisibilityFilter();
         this.table.refreshFilter();
+        this.syncFilterSearchParams();
+    }
+
+    syncFilterSearchParams() {
+        const url = new URL(window.location.href);
+        const setNonDefaultBoolean = (name, value) => {
+            if (value) url.searchParams.delete(name);
+            else url.searchParams.set(name, 'false');
+        };
+
+        setNonDefaultBoolean('proposed', this.showProposedReviews);
+        setNonDefaultBoolean('accepted', this.showAcceptedReviews);
+        setNonDefaultBoolean('street', this.showStreetLocations);
+        setNonDefaultBoolean('approximate', this.showApproximateLocations);
+        setNonDefaultBoolean('expired', this.showExpiredCourses);
+
+        for (const [name, value] of [
+            ['country', this.selectedCountry],
+            ['state', this.selectedState],
+            ['city', this.selectedLocation]
+        ]) {
+            if (value) url.searchParams.set(name, value);
+            else url.searchParams.delete(name);
+        }
+
+        window.history.replaceState(window.history.state, '', url);
     }
 
     isFilterActive(field, operator, value) {
