@@ -285,12 +285,6 @@ def lint_tsv(input_file, output_file, epsilon=10):  # epsilon in meters
         else:
             f.write("No courses with city in ALL CAPS found.\n")
 
-        f.write("\n=== COURSES WITH APPROXIMATE LOCATION (PURPLE) ===\n")
-        if purple_courses:
-            for course in purple_courses:
-                f.write(f"{course['id']}\t{course['name']}\t{course['city']}, {course['state']}\n")
-        else:
-            f.write("No courses with approximate location (PURPLE color) found.\n")
 
     print(f"Report written to {output_file}")
 
