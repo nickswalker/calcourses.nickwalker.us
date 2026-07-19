@@ -80,7 +80,7 @@ export class MeasurerStats extends LitElement {
         const displayStats = this.limit > 0 ? measurerStats.slice(0, this.limit) : measurerStats;
 
         return html`
-          <div class="container">
+          <div class="measurer-stats-container">
             <h6>Measurers by Course Count</h6>
 
             ${measurerStats.length > 0

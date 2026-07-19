@@ -66,13 +66,58 @@ function featureToDescription(feature, line) {
   `;
 }
 
+const COUNTRY_NAMES = {
+    US: "United States",
+    CA: "Canada",
+    BS: "Bahamas",
+    BM: "Bermuda",
+    IN: "India",
+    JM: "Jamaica",
+    KR: "South Korea"
+};
+
+function escapeHtml(value) {
+    const element = document.createElement('div');
+    element.textContent = value ?? '';
+    return element.innerHTML;
+}
+
+ function formatDisplacement(distanceMeters) {
+    return distanceMeters < 1000
+        ? `${distanceMeters} m`
+        : `${(distanceMeters / 1000).toFixed(1)} km`;
+}
+
+function reviewFeatureToDescription(feature) {
+    const properties = feature.properties;
+    const proposed = feature.geometry.type === 'Point'
+        ? feature.geometry.coordinates
+        : properties.reviewCoordinates;
+    const original = typeof properties.originalCoordinates === 'string'
+        ? JSON.parse(properties.originalCoordinates)
+        : properties.originalCoordinates;
+    const displacement = formatDisplacement(properties.distanceMeters);
+    const proposedLabel = feature.geometry.type === 'Point' ? 'Proposed' : 'Line midpoint';
+    const status = properties.reviewStatus === 'accepted' ? 'Accepted' : 'Pending review';
+    return `
+      <h5>${escapeHtml(properties.name)}</h5>
+      <div class="d-flex flex-column gap-1">
+        <a href="${properties.certificateLink}" target="_blank">${properties.certificateId}</a>
+        <span>${escapeHtml(properties.city)}, ${escapeHtml(properties.state)}</span>
+        <span><strong>${status}</strong> · ${escapeHtml(properties.confidence)} confidence · moved ${displacement}</span>
+        <span>Original: ${original[1].toFixed(6)}, ${original[0].toFixed(6)}</span>
+        <span>${proposedLabel}: ${proposed[1].toFixed(6)}, ${proposed[0].toFixed(6)}</span>
+        <p class="mb-0 mt-1">${escapeHtml(properties.evidence)}</p>
+      </div>`;
+}
+
 export class CoursesView extends LitElement {
     static styles = css`
         courses-view {
             display: block;
         }
 
-        .container {
+        .view-container {
             height: 100%;
             width: 100%;
         }
@@ -112,15 +157,137 @@ export class CoursesView extends LitElement {
             max-width: 300px;
         }
 
+        .review-popup.maplibregl-popup .maplibregl-popup-content {
+            max-height: min(70vh, 420px);
+            overflow-y: auto;
+        }
+
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: .6rem 1rem;
+            padding: .75rem;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: .375rem;
+        }
+
+        .filter-bar > .input-group {
+            width: auto;
+            flex: 1 1 15rem;
+        }
+
+        .map-legend {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: .35rem 1rem;
+            flex: 1 1 100%;
+            padding-top: .55rem;
+            border-top: 1px solid #dee2e6;
+            color: #495057;
+            font-size: .875rem;
+        }
+
+        .map-legend-title {
+            color: #212529;
+            font-weight: 600;
+        }
+
+        .map-legend-toggle {
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+            padding: .25rem .5rem;
+            border: 1px solid #adb5bd;
+            border-radius: 999px;
+            background: #fff;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .map-legend-toggle:hover {
+            background: #e9ecef;
+        }
+
+        .map-legend-toggle[aria-pressed="false"] {
+            opacity: .48;
+            text-decoration: line-through;
+        }
+
+        .map-legend-label {
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+            padding: .25rem .5rem;
+            color: #6c757d;
+        }
+
+        .map-legend .course-circle,
+        .map-legend .course-circle-outline,
+        .map-legend .course-expired {
+            width: 14px;
+            height: 14px;
+            margin-right: 5px;
+        }
+
+        .map-legend .course-expired::before {
+            font-size: 10px;
+        }
+
+        .course-line-key {
+            display: inline-block;
+            width: 20px;
+            border-top: 3px solid #AB2129;
+            margin-right: 5px;
+        }
+
+        @media (max-width: 575.98px) {
+            .filter-bar,
+            #map,
+            #courses-table {
+                margin-left: calc(var(--bs-gutter-x, 1.5rem) * -.5);
+                margin-right: calc(var(--bs-gutter-x, 1.5rem) * -.5);
+                border-radius: 0;
+            }
+
+            #map {
+                width: auto;
+            }
+
+            .filter-bar,
+            #courses-table {
+                border-left: 0;
+                border-right: 0;
+            }
+        }
+
+        /* Break out of the container's max-width, but keep the page gutter */
+        @media (min-width: 576px) and (max-width: 991.98px) {
+            .filter-bar,
+            #map,
+            #courses-table {
+                margin-left: calc(50% - 50vw + var(--bs-gutter-x, 1.5rem) * .5);
+                margin-right: calc(50% - 50vw + var(--bs-gutter-x, 1.5rem) * .5);
+            }
+
+            #map {
+                width: auto;
+            }
+        }
+
     `;
 
     static properties = {
         coursesUrl: {type: String},
         courseLinesUrl: {type: String},
+        reviewUrl: {type: String},
         styleUrl: {type: String},
         initialCenter: {type: Array},
         calibrationCourses: {type: Array, state: true},
         filteredCourses: {type: Array, state: true},
+        countries: {type: Array, state: true},
         states: {type: Array, state: true},
         locations: {type: Array, state: true},
         features: {type: Array, state: true},
@@ -130,9 +297,19 @@ export class CoursesView extends LitElement {
         sorts: {type: Array, state: true},
         openCourse: {type: String, state: true},
         approximateOnly: {type: Boolean, state: true},
+        locationReviewEnabled: {type: Boolean, state: true},
+        linesOnly: {type: Boolean, state: true},
+        reviewMode: {type: Boolean, state: true},
+        reviewData: {type: Array, state: true},
+        showProposedReviews: {type: Boolean, state: true},
+        showAcceptedReviews: {type: Boolean, state: true},
+        showStreetLocations: {type: Boolean, state: true},
+        showApproximateLocations: {type: Boolean, state: true},
+        showExpiredCourses: {type: Boolean, state: true},
         dataLoading: {type: Boolean, state: true},
         geolocationCoordinates: {type: Array, state: true},
         isGeolocationEnabled: {type: Boolean, state: true},
+        selectedCountry: {type: String, state: true},
         selectedState: {type: String, state: true},
         selectedLocation: {type: String, state: true}
     };
@@ -141,7 +318,19 @@ export class CoursesView extends LitElement {
         super();
         this.calibrationCourses = null;
         this.calibrationCourseLines = null;
+        this.reviewData = [];
+        this.reviewMode = false;
+        this.showProposedReviews = true;
+        this.showAcceptedReviews = true;
+        this.locationReviewEnabled = false;
+        this.linesOnly = false;
+        this.showStreetLocations = true;
+        this.showApproximateLocations = true;
+        this.showExpiredCourses = true;
+        this.countries = [];
         this.states = [];
+        this.stateCountry = {};
+        this.cityStates = {};
         this.filters = [];
         this.headerFilters = [];
         this.filteredCourses = [];
@@ -164,6 +353,7 @@ export class CoursesView extends LitElement {
         this.tableContainer.id = "courses-table";
         this.tableContainer.classList.add("table-sm")
         this.geolocationCoordinates = null;
+        this.selectedCountry = "";
         this.selectedState = "";
         this.selectedLocation = "";
     }
@@ -175,6 +365,13 @@ export class CoursesView extends LitElement {
 
     connectedCallback() {
         super.connectedCallback()
+        const urlParams = new URLSearchParams(window.location.search);
+        this.locationReviewEnabled = urlParams.get('locationReview') === 'true';
+        this.reviewMode = this.locationReviewEnabled;
+        this.showProposedReviews = urlParams.get('showProposed') !== 'false';
+        this.showAcceptedReviews = urlParams.get('showAccepted') !== 'false';
+        this.linesOnly = urlParams.get('linesOnly') === 'true';
+
         const savedSorts = JSON.parse(sessionStorage.getItem('tableSorts'));
         if (savedSorts) {
             this.sorts = savedSorts;
@@ -202,7 +399,6 @@ export class CoursesView extends LitElement {
                 this.openCourse = urlHash.substring(1);
             }
         })
-        const urlParams = new URLSearchParams(window.location.search);
         const approximateOnly = urlParams.get('approximateOnly');
         if (approximateOnly) {
             this.approximateOnly = approximateOnly === 'true';
@@ -211,6 +407,12 @@ export class CoursesView extends LitElement {
         } else {
             this.approximateOnly = false;
             this.filters = this.filters.filter(filter => filter.field !== "properties.approximate");
+        }
+        this.filters = this.filters.filter(filter =>
+            filter.field !== "properties.hasLine" && filter.field !== "properties.expired"
+        );
+        if (this.linesOnly) {
+            this.filters.push({field: "properties.hasLine", type: "=", value: true});
         }
     }
 
@@ -229,9 +431,10 @@ export class CoursesView extends LitElement {
 
     async loadData() {
         try {
-            const [coursesResponse, courseLinesResponse] = await Promise.all([
+            const [coursesResponse, courseLinesResponse, reviewResponse] = await Promise.all([
                 fetch(this.coursesUrl),
-                fetch(this.courseLinesUrl)
+                fetch(this.courseLinesUrl),
+                this.locationReviewEnabled && this.reviewUrl ? fetch(this.reviewUrl) : Promise.resolve(null)
             ]);
 
             if (!coursesResponse.ok) {
@@ -242,13 +445,15 @@ export class CoursesView extends LitElement {
                 throw new Error(`Failed to fetch course lines data: ${courseLinesResponse.status} ${courseLinesResponse.statusText}`);
             }
 
-            const [coursesData, courseLinesData] = await Promise.all([
+            const [coursesData, courseLinesData, reviewData] = await Promise.all([
                 coursesResponse.json(),
-                courseLinesResponse.json()
+                courseLinesResponse.json(),
+                reviewResponse?.ok ? reviewResponse.json() : Promise.resolve({features: []})
             ]);
 
             this.calibrationCourses = coursesData.features;
             this.calibrationCourseLines = courseLinesData.features;
+            this.reviewData = reviewData.features;
 
             this.processData();
         } catch (error) {
@@ -261,38 +466,70 @@ export class CoursesView extends LitElement {
     }
 
     processData() {
+        const countriesSet = new Set();
         const statesSet = new Set();
         const locationsSet = new Set();
+        const stateCountry = {};
+        const cityStates = {};
         const currentYear = new Date().getFullYear();
+        const coursesWithLines = new Set(
+            this.calibrationCourseLines.map(line => line.properties.certificateId)
+        );
 
         for (const [id, course] of Object.entries(this.calibrationCourses)) {
             // Extract state and location information for dropdowns
             const properties = course.properties;
+            if (properties.country) {
+                countriesSet.add(properties.country);
+            }
             if (properties.state) {
                 statesSet.add(properties.state);
+                if (properties.country) {
+                    stateCountry[properties.state] = properties.country;
+                }
             }
 
-            if (properties.city && properties.state) {
-                locationsSet.add(properties.city + ', ' + properties.state);
+            if (properties.city) {
+                locationsSet.add(properties.city);
+                if (properties.state) {
+                    (cityStates[properties.city] ??= new Set()).add(properties.state);
+                }
             }
 
-            // Extract the first two digits after any letters at the beginning
-            const yearMatch = properties.certificateId.match(/^[A-Za-z]+(\d{2})/);
-            if (yearMatch && yearMatch[1]) {
-                const courseYear = parseInt("20" + yearMatch[1]);
+            // Prefer a server-computed year (all new data, US and Canadian).
+            // Otherwise fall back to parsing it out of the certificateId:
+            // US-style ids start with letters then a 2-digit year (AK13003FW),
+            // Canadian ids start with a province code then a 4-digit year (ON-2025-017-LJJL).
+            let courseYear = properties.year;
+            if (courseYear == null) {
+                const usYearMatch = properties.certificateId.match(/^[A-Za-z]+(\d{2})/);
+                if (usYearMatch && usYearMatch[1]) {
+                    courseYear = parseInt("20" + usYearMatch[1]);
+                } else {
+                    const caYearMatch = properties.certificateId.match(/^[A-Z]{2}-(\d{4})-/);
+                    if (caYearMatch && caYearMatch[1]) {
+                        courseYear = parseInt(caYearMatch[1]);
+                    } else {
+                        // Handle the case where no matching pattern is found
+                        console.warn("Could not extract year from certificateId:", properties.certificateId);
+                    }
+                }
+            }
+            if (courseYear != null) {
                 course.properties.year = courseYear;
-                course.properties.expired = currentYear > (courseYear + 10)
-            } else {
-                // Handle the case where no matching pattern is found
-                console.warn("Could not extract year from certificateId:", properties.certificateId);
+                course.properties.expired = currentYear > (properties.expires ?? courseYear + 10);
             }
             course.properties.courseLengthMeters = course.properties.courseLength
             if (course.properties.units === "ft") {
                 course.properties.courseLengthMeters = course.properties.courseLength * .3048
             }
+            course.properties.hasLine = coursesWithLines.has(properties.certificateId);
         }
 
+        this.countries = [...countriesSet].sort();
         this.states = [...statesSet].sort();
+        this.stateCountry = stateCountry;
+        this.cityStates = cityStates;
         this.locations = [...locationsSet].sort();
     }
 
@@ -346,7 +583,79 @@ export class CoursesView extends LitElement {
                 this.openCourse = undefined;
             })
 
+            // Separate popup for review proposals: evidence text can be long, so this one
+            // scrolls internally (see .review-popup CSS) and lets maplibre auto-pick an anchor
+            // that keeps it inside the map instead of the fixed left anchor used for course popups.
+            this.reviewPopup = new maplibregl.Popup({
+                closeButton: true,
+                closeOnClick: false,
+                className: 'course-popup review-popup',
+                focusAfterOpen: false,
+                maxWidth: '320px'
+            });
+
             const pointLayerIds = ['overview-point', 'unclustered-point'];
+
+            this.map.addSource('location-review', {
+                type: 'geojson',
+                data: {type: 'FeatureCollection', features: []}
+            });
+            this.map.addLayer({
+                id: 'location-review-connectors',
+                type: 'line',
+                source: 'location-review',
+                filter: ['==', ['get', 'role'], 'connector'],
+                paint: {
+                    'line-color': '#F59E0B',
+                    'line-width': 2,
+                    'line-dasharray': [2, 2],
+                    'line-opacity': 0.85
+                }
+            });
+            this.map.addLayer({
+                id: 'location-review-proposal-lines',
+                type: 'line',
+                source: 'location-review',
+                filter: ['all', ['==', ['get', 'role'], 'review'], ['==', ['geometry-type'], 'LineString']],
+                paint: {
+                    'line-color': ['match', ['get', 'reviewStatus'], 'accepted', '#198754', '#087EA4'],
+                    'line-width': 4,
+                    'line-opacity': 0.9
+                }
+            });
+            this.map.addLayer({
+                id: 'location-review-proposals',
+                type: 'circle',
+                source: 'location-review',
+                filter: ['==', ['get', 'role'], 'review'],
+                paint: {
+                    'circle-color': ['match', ['get', 'reviewStatus'], 'accepted', '#198754', '#087EA4'],
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 4, 10, 7],
+                    'circle-stroke-color': '#FFFFFF',
+                    'circle-stroke-width': 2
+                }
+            });
+
+            const reviewProposalLayerIds = ['location-review-proposals', 'location-review-proposal-lines'];
+            reviewProposalLayerIds.forEach(layerId => this.map.on('mouseenter', layerId, () => {
+                this.map.getCanvas().style.cursor = 'pointer';
+            }));
+            reviewProposalLayerIds.forEach(layerId => this.map.on('mouseleave', layerId, () => {
+                this.map.getCanvas().style.cursor = '';
+            }));
+            const showReviewProposal = (e) => {
+                const feature = e.features[0];
+                const popupNode = document.createElement('div');
+                popupNode.className = 'course-popup';
+                popupNode.innerHTML = reviewFeatureToDescription(feature);
+                this.reviewPopup
+                    .setLngLat(feature.geometry.type === 'Point'
+                        ? feature.geometry.coordinates
+                        : feature.properties.reviewCoordinates)
+                    .setDOMContent(popupNode)
+                    .addTo(this.map);
+            };
+            reviewProposalLayerIds.forEach(layerId => this.map.on('click', layerId, showReviewProposal));
 
             // Show popup on hover
             const showPointPopup = (e) => {
@@ -558,7 +867,7 @@ export class CoursesView extends LitElement {
             layout: "fitDataStretch",
             paginationSizeSelector: [10, 15, 25, 50, 100],
             placeholder: "No Data Available",
-            groupBy: "properties.state", // Group by state
+            groupBy: this.reviewMode ? undefined : "properties.state", // Group by state, except when reviewing proposals
             groupHeader: function (value, count) {
                 return value + " <span class='text-muted'>(" + count + " courses)</span>";
             },
@@ -594,8 +903,51 @@ export class CoursesView extends LitElement {
                         } else return `<span title="${data.properties.name}">${data.properties.nameAbbreviated}</span>`;
                     }
                 },
+                ...(this.reviewMode ? [{
+                    title: "Status",
+                    field: "properties.certificateId",
+                    sorter: (_a, _b, aRow, bRow) => this.getReviewStatus(
+                        aRow.getData().properties.certificateId
+                    ).localeCompare(this.getReviewStatus(bRow.getData().properties.certificateId)),
+                    headerSort: true,
+                    formatter: (cell) => this.getReviewStatus(
+                        cell.getRow().getData().properties.certificateId
+                    ) === 'accepted' ? 'Accepted' : 'Proposed'
+                }, {
+                    title: "Displacement",
+                    field: "properties.certificateId",
+                    sorter: (_a, _b, aRow, bRow) => {
+                        const aMeters = this.getDisplacementMeters(aRow.getData().properties.certificateId);
+                        const bMeters = this.getDisplacementMeters(bRow.getData().properties.certificateId);
+                        return (aMeters ?? -1) - (bMeters ?? -1);
+                    },
+                    headerSort: true,
+                    formatter: (cell) => {
+                        const meters = this.getDisplacementMeters(cell.getRow().getData().properties.certificateId);
+                        return meters === null ? "" : formatDisplacement(meters);
+                    }
+                }, {
+                    title: "Line",
+                    field: "properties.certificateId",
+                    sorter: (_a, _b, aRow, bRow) => Number(
+                        this.hasReviewLine(aRow.getData().properties.certificateId)
+                    ) - Number(this.hasReviewLine(bRow.getData().properties.certificateId)),
+                    headerSort: true,
+                    formatter: (cell) => this.hasReviewLine(
+                        cell.getRow().getData().properties.certificateId
+                    ) ? "Yes" : ""
+                }] : []),
                 {title: "City", field: "properties.city", sorter: "string", headerSort: false, headerFilter: true, headerFilterFunc: "=", headerFilterPlaceholder: " "},
-                {title: "State", field: "properties.state", sorter: "string", headerSort: false, headerFilter: true, headerFilterFunc: "=", headerFilterPlaceholder: " "},
+                {title: "State/Province", field: "properties.state", sorter: "string", headerSort: false, headerFilter: true, headerFilterFunc: "=", headerFilterPlaceholder: " "},
+                {
+                    title: "Country",
+                    field: "properties.country",
+                    sorter: "string",
+                    headerSort: false,
+                    headerFilter: true,
+                    headerFilterFunc: "=",
+                    visible: false
+                }, // just for filtering on
                 {
                     title: "Length",
                     field: "properties.courseLengthMeters",
@@ -629,6 +981,12 @@ export class CoursesView extends LitElement {
                     headerFilter: true,
                     visible: false
                 }, // just for filtering on
+                {
+                    title: "Has Line",
+                    field: "properties.hasLine",
+                    sorter: "boolean",
+                    visible: false
+                }, // query-param filter only
                 {
                     title: "Year",
                     field: "properties.year",
@@ -677,31 +1035,22 @@ export class CoursesView extends LitElement {
         this.table.on("dataFiltered", (filters, rows) => {
             this.table.footerManager.element.querySelector("#course-count").innerText = this.table.getData().length;
             this.table.footerManager.element.querySelector("#after-filter-count").innerText = rows.length
-            this.matchMapToTableData(rows)
+            this.scheduleMapToTableData()
 
-            const stateFilter = this.table.getHeaderFilters().find(f => f.field === "properties.state");
-            const cityFilter = this.table.getHeaderFilters().find(f => f.field === "properties.city");
+            const activeHeaderFilters = this.table.getHeaderFilters();
+            const countryFilter = activeHeaderFilters.find(f => f.field === "properties.country");
+            const stateFilter = activeHeaderFilters.find(f => f.field === "properties.state");
+            const cityFilter = activeHeaderFilters.find(f => f.field === "properties.city");
 
-            // Update state selection based on filter
-            if (stateFilter && this.states.includes(stateFilter.value)) {
-                this.selectedState = stateFilter.value;
-            } else {
-                this.selectedState = "";
-            }
+            // Keep the dropdown selections in sync with the header filters
+            this.selectedCountry = countryFilter && this.countries.includes(countryFilter.value)
+                ? countryFilter.value : "";
+            this.selectedState = stateFilter && this.states.includes(stateFilter.value)
+                ? stateFilter.value : "";
+            this.selectedLocation = cityFilter && this.locations.includes(cityFilter.value)
+                ? cityFilter.value : "";
 
-            // Update location selection based on filter
-            if (cityFilter && stateFilter) {
-                const potentialLocation = `${cityFilter.value}, ${stateFilter.value}`;
-                if (this.locations.includes(potentialLocation)) {
-                    this.selectedLocation = potentialLocation;
-                } else {
-                    this.selectedLocation = "";
-                }
-            } else {
-                this.selectedLocation = "";
-            }
-
-            this.headerFilters = this.table.getHeaderFilters();
+            this.headerFilters = activeHeaderFilters;
 
             sessionStorage.setItem('tableFilters', JSON.stringify(this.filters));
             sessionStorage.setItem('tableHeaderFilters', JSON.stringify(this.headerFilters));
@@ -719,6 +1068,20 @@ export class CoursesView extends LitElement {
             //this.matchMapToTableData(this.table.getRows())
         });
         this.table.on("tableBuilt", () => {
+            this.legendFilter = data => {
+                const properties = data.properties;
+                const locationTypeVisible = properties.approximate
+                    ? this.showApproximateLocations
+                    : this.showStreetLocations;
+                return locationTypeVisible && (this.showExpiredCourses || !properties.expired);
+            };
+            this.table.addFilter(this.legendFilter);
+
+            if (this.reviewMode) {
+                this.table.addFilter(data => this.getReviewFeature(data.properties.certificateId) !== undefined);
+                this.applyReviewVisibilityFilter();
+            }
+
             ['properties.city', 'properties.state'].forEach(field => {
                 const headerCell = this.tableContainer.querySelector(`[tabulator-field="${field}"]`);
                 if (!headerCell) return;
@@ -751,23 +1114,67 @@ export class CoursesView extends LitElement {
         this.matchMapToCourseIds(visibleRowIds);
     }
 
-    matchMapToCourseData(courses) {
-        if (!this.map || !this.map.isStyleLoaded()) return;
-        if (!this.calibrationCourses || !this.calibrationCourseLines || !this.map || !this.table) return;
-        const visibleRowIds = courses.map(course => course.properties.certificateId);
-        this.matchMapToCourseIds(visibleRowIds);
+    scheduleMapToTableData() {
+        clearTimeout(this.mapFilterUpdateTimer);
+        this.mapFilterUpdateTimer = setTimeout(() => {
+            // Header filters may be applied in several steps. Read the settled table
+            // instead of using a transient row set from an earlier dataFiltered event.
+            this.matchMapToTableData(this.table.getRows("active"));
+        }, 0);
+    }
+
+    getDisplacementMeters(certificateId) {
+        const feature = this.getReviewFeature(certificateId);
+        return feature ? feature.properties.distanceMeters : null;
+    }
+
+    hasReviewLine(certificateId) {
+        return this.reviewData.some(feature =>
+            feature.properties.role === 'review' &&
+            feature.properties.certificateId === certificateId &&
+            feature.geometry.type === 'LineString'
+        );
+    }
+
+    getReviewFeature(certificateId) {
+        return this.reviewData.find(feature =>
+            feature.properties.role === 'review' && feature.properties.certificateId === certificateId
+        );
+    }
+
+    getReviewStatus(certificateId) {
+        return this.getReviewFeature(certificateId)?.properties.reviewStatus || '';
+    }
+
+    applyReviewVisibilityFilter() {
+        if (this.reviewVisibilityFilter) {
+            this.table?.removeFilter(this.reviewVisibilityFilter);
+            this.reviewVisibilityFilter = undefined;
+        }
+        this.reviewVisibilityFilter = data => {
+            const status = this.getReviewStatus(data.properties.certificateId);
+            return (status === 'pending' && this.showProposedReviews) ||
+                (status === 'accepted' && this.showAcceptedReviews);
+        };
+        this.table?.addFilter(this.reviewVisibilityFilter);
     }
 
     matchMapToCourseIds(visibleRowIds) {
+        const reviewIds = new Set(this.reviewData
+            .filter(feature => feature.properties.role === 'review')
+            .map(feature => feature.properties.certificateId));
+        const mapRowIds = this.reviewMode
+            ? visibleRowIds.filter(certificateId => reviewIds.has(certificateId))
+            : visibleRowIds;
         // Filter the map features to only show those that match the visible rows
         const filteredFeatures = this.calibrationCourses.filter(feature =>
-            visibleRowIds.includes(feature.properties.certificateId)
+            mapRowIds.includes(feature.properties.certificateId)
         );
         this.filteredCourses = filteredFeatures.slice();
 
 
         const filteredLineFeatures = this.calibrationCourseLines.filter(feature =>
-            visibleRowIds.includes(feature.properties.certificateId)
+            mapRowIds.includes(feature.properties.certificateId)
         );
 
         // Update the map source with the filtered features
@@ -780,6 +1187,12 @@ export class CoursesView extends LitElement {
         this.map.getSource("course-lines").setData({
             type: 'FeatureCollection',
             features: filteredLineFeatures
+        });
+        this.map.getSource('location-review')?.setData({
+            type: 'FeatureCollection',
+            features: this.reviewMode
+                ? this.reviewData.filter(feature => mapRowIds.includes(feature.properties.certificateId))
+                : []
         });
     }
 
@@ -798,47 +1211,74 @@ export class CoursesView extends LitElement {
         }
     }
 
+    handleCountryChange(e) {
+        const value = e.target.value;
+        this.selectedCountry = value;
+        this.selectedState = "";
+        this.selectedLocation = "";
+        this.headerFilters = this.headerFilters.filter(filter =>
+            filter.field !== "properties.country" && filter.field !== "properties.state" && filter.field !== "properties.city"
+        );
+        this.table.setHeaderFilterValue("properties.state", "");
+        this.table.setHeaderFilterValue("properties.city", "");
+
+        if (value) {
+            // This will trigger dataFiltered and update the map
+            this.table.setHeaderFilterValue("properties.country", value);
+            this.headerFilters = [...this.headerFilters, {field: "properties.country", type: "=", value: value}];
+            this.zoomToFilteredFeatures();
+        } else {
+            this.table.setHeaderFilterValue("properties.country", "");
+        }
+    }
+
     handleStateChange(e) {
         const value = e.target.value;
         this.selectedState = value;
+        this.selectedLocation = "";
+        this.headerFilters = this.headerFilters.filter(filter =>
+            filter.field !== "properties.state" && filter.field !== "properties.city"
+        );
+        this.table.setHeaderFilterValue("properties.city", "");
 
         if (value) {
             this.table.setHeaderFilterValue("properties.state", value);
-            this.headerFilters = this.headerFilters.filter(filter => filter.field !== "properties.state");
             // This will trigger dataFiltered and update the map
             this.headerFilters = [...this.headerFilters, {field: "properties.state", type: "=", value: value}];
             this.zoomToFilteredFeatures();
         } else {
             this.table.setHeaderFilterValue("properties.state", "");
-            this.headerFilters = this.headerFilters.filter(filter => filter.field !== "properties.state");
         }
     }
 
     handleLocationChange(e) {
         const value = e.target.value;
         this.selectedLocation = value;
+        this.headerFilters = this.headerFilters.filter(filter => filter.field !== "properties.city");
 
         if (value) {
-            const [city, state] = value.split(', ');
-            this.headerFilters = this.headerFilters.filter(filter => (filter.field !== "properties.state") && (filter.field !== "properties.city"));
-
-            this.headerFilters = [...this.headerFilters,
-                {field: "properties.city", type: "=", value: city},
-                {field: "properties.state", type: "=", value: state}
-            ];
             // This will trigger dataFiltered
-            this.table.setHeaderFilterValue("properties.city", city);
-            this.table.setHeaderFilterValue("properties.state", state);
-
+            this.table.setHeaderFilterValue("properties.city", value);
+            this.headerFilters = [...this.headerFilters, {field: "properties.city", type: "=", value: value}];
             this.zoomToFilteredFeatures();
         } else {
-
-            this.headerFilters = this.headerFilters.filter(filter => (filter.field !== "properties.state") && (filter.field !== "properties.city"));
-            // This will trigger dataFiltered
             this.table.setHeaderFilterValue("properties.city", "");
-            this.table.setHeaderFilterValue("properties.state", "");
-            setTimeout(() => this.matchMapToCourseData(this.table.getData("active")), 350);
         }
+    }
+
+    get visibleStates() {
+        if (!this.selectedCountry) return this.states;
+        return this.states.filter(state => this.stateCountry[state] === this.selectedCountry);
+    }
+
+    get visibleCities() {
+        if (!this.selectedState && !this.selectedCountry) return this.locations;
+        return this.locations.filter(city => {
+            const states = this.cityStates[city];
+            if (!states) return false;
+            if (this.selectedState) return states.has(this.selectedState);
+            return [...states].some(state => this.stateCountry[state] === this.selectedCountry);
+        });
     }
 
     renderError(error) {
@@ -855,20 +1295,14 @@ export class CoursesView extends LitElement {
         }
     }
 
-    handleIncludeExpired(e) {
-        this.setIncludeExpired(e.target.checked);
-        this.requestUpdate()
-    }
-
-    setIncludeExpired(includeExpired) {
-        this.filters = this.filters.filter(value => value.field !== "properties.expired");
-        if (!includeExpired) {
-            this.filters = [...this.filters, {field: "properties.expired", type: "=", value: false}];
-        }
-    }
-
-    includeExpired() {
-        return !this.isFilterActive("properties.expired", "=", false);
+    toggleLegendItem(item) {
+        if (item === 'street') this.showStreetLocations = !this.showStreetLocations;
+        if (item === 'approximate') this.showApproximateLocations = !this.showApproximateLocations;
+        if (item === 'expired') this.showExpiredCourses = !this.showExpiredCourses;
+        if (item === 'proposed') this.showProposedReviews = !this.showProposedReviews;
+        if (item === 'accepted') this.showAcceptedReviews = !this.showAcceptedReviews;
+        if (item === 'proposed' || item === 'accepted') this.applyReviewVisibilityFilter();
+        this.table.refreshFilter();
     }
 
     isFilterActive(field, operator, value) {
@@ -950,42 +1384,85 @@ export class CoursesView extends LitElement {
 
     render() {
         return html`
-            <div class="container">
+            <div class="view-container">
                 <style>
                     ${this.constructor.styles}
                 </style>
-                <div class="btn-toolbar gap-2 mb-2 row align-items-center" role="toolbar">
+                <div class="filter-bar mb-2" role="toolbar" aria-label="Course filters and map legend">
                     <div class="input-group">
-                        <label class="input-group-text" for="states-select">State</label>
+                        <label class="input-group-text" for="countries-select">Country</label>
+                        <select class="form-select" id="countries-select" .value=${this.selectedCountry} @change=${this.handleCountryChange}>
+                            <option value="">All Countries</option>
+                            ${map(this.countries, country => html`
+                                <option value=${country}>${COUNTRY_NAMES[country] ?? country}</option>
+                            `)}
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-group-text" for="states-select">State/Province</label>
                         <select class="form-select" id="states-select" .value=${this.selectedState} @change=${this.handleStateChange}>
-                            <option value="">All States</option>
-                            ${map(this.states, state => html`
+                            <option value="">All States/Provinces</option>
+                            ${map(this.visibleStates, state => html`
                                 <option value=${state}>${state}</option>
                             `)}
                         </select>
                     </div>
 
                     <div class="input-group">
-                        <label class="input-group-text" for="locations-select">Location</label>
+                        <label class="input-group-text" for="locations-select">City</label>
                         <select class="form-select" id="locations-select" .value=${this.selectedLocation} @change=${this.handleLocationChange}>
-                            <option value="">All Locations</option>
-                            ${map(this.locations, location => html`
-                                <option value=${location}>${location}</option>
+                            <option value="">All Cities</option>
+                            ${map(this.visibleCities, city => html`
+                                <option value=${city}>${city}</option>
                             `)}
                         </select>
                     </div>
 
-                    <div class="col-auto">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="include-expired" value="include-expired"
-                                   .checked="${this.includeExpired()}"
-                                   @change=${this.handleIncludeExpired}>
-                            <label class="form-check-label" for="include-expired">
-                                Include Expired
-                            </label>
-                        </div>
+                    <div class="map-legend" aria-label="Map legend">
+                      <span class="map-legend-title">Map key</span>
+                      <button type="button" class="map-legend-toggle" aria-pressed=${this.showStreetLocations}
+                              title="Show or hide street locations" @click=${() => this.toggleLegendItem('street')}>
+                        <span class="course-circle"></span>Street location
+                      </button>
+                      <button type="button" class="map-legend-toggle" aria-pressed=${this.showApproximateLocations}
+                              title="Show or hide approximate locations" @click=${() => this.toggleLegendItem('approximate')}>
+                        <span class="course-circle-outline"></span>Approximate
+                      </button>
+                      <button type="button" class="map-legend-toggle" aria-pressed=${this.showExpiredCourses}
+                              title="Show or hide expired courses" @click=${() => this.toggleLegendItem('expired')}>
+                        <span class="course-expired"></span>Expired
+                      </button>
+                      <span class="map-legend-label" title="Shown when available for a visible course">
+                        <span class="course-line-key"></span>Measured line
+                      </span>
                     </div>
                 </div>
+
+                ${this.reviewMode ? html`
+                  <div class="alert alert-info py-2 mb-2" role="status">
+                    Reviewing ${this.reviewData.filter(feature => feature.properties.role === 'review' && feature.properties.reviewStatus === 'pending').length} proposed candidates and ${this.reviewData.filter(feature => feature.properties.role === 'review' && feature.properties.reviewStatus === 'accepted').length} accepted records:
+                    <span class="review-key review-key-original"></span> original location,
+                    <span class="review-line"></span> displacement. Click a point or line for evidence.
+                    <span class="review-status-filters">
+                      <button type="button" class="map-legend-toggle" aria-pressed=${this.showProposedReviews}
+                              title="Show or hide proposed locations" @click=${() => this.toggleLegendItem('proposed')}>
+                        <span class="review-key review-key-proposed"></span>Proposed
+                      </button>
+                      <button type="button" class="map-legend-toggle" aria-pressed=${this.showAcceptedReviews}
+                              title="Show or hide accepted locations" @click=${() => this.toggleLegendItem('accepted')}>
+                        <span class="review-key review-key-accepted"></span>Accepted
+                      </button>
+                    </span>
+                  </div>
+                  <style>
+                    .review-key { display:inline-block; width:12px; height:12px; border-radius:50%; vertical-align:-1px; margin-left:.4rem; }
+                    .review-key-original { background-color:#AB2129; }
+                    .review-key-proposed { background:#087EA4; border:2px solid white; box-shadow:0 0 0 1px #087EA4; }
+                    .review-key-accepted { background:#198754; border:2px solid white; box-shadow:0 0 0 1px #198754; }
+                    .review-line { display:inline-block; width:22px; border-top:2px dashed #F59E0B; vertical-align:4px; margin-left:.4rem; }
+                    .review-status-filters { display:inline-flex; gap:.35rem; margin-left:.75rem; }
+                  </style>` : ''}
 
                 <div class="map-table-container">
                   <div id="map"></div>
