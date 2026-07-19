@@ -219,6 +219,13 @@ def tsv_to_geojson(input_file, default_country="US"):
                     },
                     "properties": {
                         "certificateId": row['CourseID'],
+                        "sourceGeometry": {
+                            "type": "Point",
+                            "coordinates": [
+                                float(row['Longitude']),
+                                float(row['Latitude'])
+                            ]
+                        },
                         "name": name,
                         "nameAbbreviated": name_abbreviated,
                         "city": row['City'],
