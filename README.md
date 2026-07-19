@@ -1,4 +1,4 @@
-# USATF Calibration Course Map
+# North American Calibration Course Map
 
 ![Map of US with clusters of courses plotted](map_image.png)
 
