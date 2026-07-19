@@ -1,13 +1,14 @@
 {
-  "type":
-  "FeatureCollection",
-    "features":
-  [
+  "type": "FeatureCollection",
+  "features": [
     {
       "type": "Feature",
       "geometry": {
         "type": "Point",
-        "coordinates": [0,0]
+        "coordinates": [
+          0,
+          0
+        ]
       },
       "properties": {
         "certificateId": "AK24001FW",
@@ -30,7 +31,16 @@
         ]
       },
       "properties": {
-        "certificateId": "FL24001JRG"
+        "certificateId": "FL24001JRG",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 300.5,
+        "evidence": "Endpoint GPS coordinates hand-entered by the course measurer; their 300.5m separation matches the certified 300m course almost exactly.",
+        "streets": [
+          "A. Philip Randolph Blvd"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
       }
     },
     {
@@ -38,13 +48,13 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -73.967796,
-          42.699085
+          -73.972791,
+          42.700806
         ]
       },
       "properties": {
         "certificateId": "NY20001JG",
-        "approximate": true
+        "approximate": false
       }
     },
     {
@@ -63,7 +73,16 @@
         ]
       },
       "properties": {
-        "certificateId": "PA18001MW"
+        "certificateId": "PA18001MW",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 302.4,
+        "evidence": "Map prints WGS84 coordinates for Point B (40\u00b027'18.84\"N, 79\u00b059'18.80\"W), the south end near the boat-ramp fire hydrant on River Ave. Point A (north end, 2' west of fire hydrant 887H) has no printed coordinate; its coordinate is a 300m projection up River Ave from B, consistent with the map's 300m course length and the 302.4m measured separation.",
+        "streets": [
+          "River Ave"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
       }
     },
     {
@@ -82,7 +101,16 @@
         ]
       },
       "properties": {
-        "certificateId": "WA24019RMB"
+        "certificateId": "WA24019RMB",
+        "confidence": "high",
+        "certifiedMeters": 320.03,
+        "measuredMeters": 324.2,
+        "evidence": "Endpoint GPS coordinates hand-entered by the course certifier (Nick Walker, who measured this course); their 324.2m separation is consistent with the certified 320.03m course.",
+        "streets": [
+          "Evergreen Point Floating Bridge"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
       }
     },
     {
@@ -101,7 +129,2298 @@
         ]
       },
       "properties": {
-        "certificateId": "WA23018RMB"
+        "certificateId": "WA23018RMB",
+        "confidence": "high",
+        "certifiedMeters": 320.03,
+        "measuredMeters": 324.2,
+        "evidence": "Endpoint GPS coordinates hand-entered by the course certifier (Nick Walker, who measured this course); their 324.2m separation is consistent with the certified 320.03m course. Same physical location as the 2024 update (WA24019RMB).",
+        "streets": [
+          "Evergreen Point Floating Bridge"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.03888,
+            36.98753
+          ],
+          [
+            -122.03958,
+            36.98485
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "CA13071RS",
+        "approximate": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -95.458167,
+            41.516317
+          ],
+          [
+            -95.458183,
+            41.5136
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "IA13008MF",
+        "approximate": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -87.390317,
+            41.470061
+          ],
+          [
+            -87.388591,
+            41.467725
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "IN13033TDK",
+        "approximate": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0,
+          0
+        ]
+      },
+      "properties": {
+        "certificateId": "BAH13001GAN",
+        "country": "BS"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0,
+          0
+        ]
+      },
+      "properties": {
+        "certificateId": "BER15001RT",
+        "country": "BM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0,
+          0
+        ]
+      },
+      "properties": {
+        "certificateId": "BER14003RT",
+        "country": "BM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0,
+          0
+        ]
+      },
+      "properties": {
+        "certificateId": "IND16003MW",
+        "country": "IN"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0,
+          0
+        ]
+      },
+      "properties": {
+        "certificateId": "IND16001MW",
+        "country": "IN"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0,
+          0
+        ]
+      },
+      "properties": {
+        "certificateId": "IND14001MW",
+        "country": "IN"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0,
+          0
+        ]
+      },
+      "properties": {
+        "certificateId": "JAM16001TY",
+        "country": "JM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -116.22857,
+            43.60799
+          ],
+          [
+            -116.2286,
+            43.60527
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "ID24001LAB",
+        "evidence": "Accepted manual correction of the certificate's malformed printed GPS coordinates: the two -166 longitudes are corrected to -116, and the finish latitude 43.06527 is corrected to 43.60527. The resulting line measures 302.5 m, consistent with the 304.806 m certified course.",
+        "confidence": "high",
+        "certifiedMeters": 304.806,
+        "measuredMeters": 302.5,
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -104.90414,
+            40.446701
+          ],
+          [
+            -104.907394,
+            40.447923
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "CO25005MWC",
+        "evidence": "Accepted manual correction of the certificate's malformed start longitude: -109.904140 is corrected to -104.904140. The corrected printed endpoint pair measures 307.1 m, consistent with the 304.8 m certified course.",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 307.1,
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -77.197648,
+            39.070239
+          ],
+          [
+            -77.194145,
+            39.070186
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "MD19001LMJ",
+        "evidence": "Accepted PDF-verified correction of the staging transcription: the map prints the east endpoint latitude as 39.070186, not 39.071867. The printed endpoint pair measures 302.5 m, consistent with the 304.8 m certified course.",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 302.5,
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          127.0117524,
+          36.9601903
+        ]
+      },
+      "properties": {
+        "certificateId": "DC19002RT",
+        "city": "Pyeongtaek",
+        "state": "Gyeonggi-do",
+        "country": "KR",
+        "evidence": "Accepted map-based location correction. The certificate map identifies Humphreys High School, Humphreys Central Elementary School, PS171-173 Army Towers Family Housing, and an access road at Camp Humphreys in Pyeongtaek, South Korea; the Washington, DC source location is incorrect. This point is the midpoint of independently geocoded school locations because the map prints no endpoint coordinates."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -85.333014,
+          35.052969
+        ]
+      },
+      "properties": {
+        "certificateId": "TN16003BW",
+        "approximate": false,
+        "source": "manual-review"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -93.7325,
+            42.7334666667
+          ],
+          [
+            -93.72035,
+            42.7336
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "IA15007MF",
+        "source": "certificate-map",
+        "confidence": "high",
+        "certifiedMeters": 1002.035,
+        "measuredMeters": 992.5,
+        "evidence": "Both pages of the ambiguous fully scanned certificate were inspected; page 1 is the map. It literally prints GPS coordinates beside the west and east end-associated manholes on 2nd Avenue NE: west N 42\u00b044.008', W 093\u00b043.950' and east N 42\u00b044.016', W 093\u00b043.221'. These normalize to the reported LineString. Their rounded GPS positions measure 992.5 m, 9.5 m shorter than the 1002.035 m steel-taped course, so confidence is medium rather than high.",
+        "streets": [
+          "2nd Avenue NE",
+          "West Main Street",
+          "1st Street NE",
+          "2nd Street NE",
+          "3rd Street NE",
+          "4th Street NE",
+          "5th Street NE",
+          "6th Street NE",
+          "7th Street NE",
+          "8th Street NE",
+          "9th Street NE",
+          "10th Street NE",
+          "11th Street NE"
+        ],
+        "approximate": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.390682,
+          41.414517
+        ]
+      },
+      "properties": {
+        "certificateId": "CA19030RS",
+        "approximate": false,
+        "confidence": "medium",
+        "certifiedMeters": 335.24,
+        "evidence": "Scanned map page 1 shows the 335.24 m course north-south on Campus Road along the College of the Siskiyous east parking-lot boundary, with its north end at the entrance by Bel Air Park/North Club; the TSV seed is in the wrong part of California, so this Point is independently projected 167.6 m south from Nominatim's Bel Air Park position toward the geocoded College of the Siskiyous campus. No geographic coordinates are printed on the map, so this is a Point, not endpoints.",
+        "streets": [
+          "Campus Road",
+          "College Avenue"
+        ],
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.067643,
+          42.204724
+        ]
+      },
+      "properties": {
+        "certificateId": "IL19062NM",
+        "approximate": false,
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "evidence": "Certificate page 1 and map page 2 were both inspected. The ACE Calibrate 1000-foot course follows the parking-lot aisle north from Ensell Road at Telser Road in Lake Zurich, between PK nails by parking bays 1 through 9. No endpoint coordinates are printed. The TSV seed duplicates the unrelated Johnston City IL19050NM point, so it was rejected; geocoding the certificate measurer address at 1152 Ensell Road resolves to the mapped Ensell/Telser commercial area and supplies this corrected Point.",
+        "streets": [
+          "Ensell Road",
+          "Telser Road"
+        ],
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -99.455744,
+            27.555917
+          ],
+          [
+            -99.455698,
+            27.558616
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "TX23037LAB",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 300.1,
+        "evidence": "Start and finish GPS coordinates are printed directly on the map next to the 'A' and 'B' detail markers on Polaris Drive (27.555917,-99.455744 and 27.558616,-99.455698); their 300.1m separation matches the certified 300m course almost exactly.",
+        "streets": [
+          "Polaris Dr"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -72.487147,
+          42.342151
+        ]
+      },
+      "properties": {
+        "certificateId": "MA17032JK",
+        "approximate": false,
+        "confidence": "medium",
+        "certifiedMeters": 304.8,
+        "evidence": "Map page 1 places the 1,000-foot course on the Norwottuck Rail Trail at Station Road in Amherst, between the trail-side station-sign/brick-island end and the granite 9.75-mile-marker end; the source latitude evidently has a transposed leading digit, corrected to the mapped Amherst Station Road trail location. No endpoint coordinates are printed, so this is a point.",
+        "streets": [
+          "Norwottuck Rail Trail",
+          "Station Road"
+        ],
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.052152,
+          26.66739
+        ]
+      },
+      "properties": {
+        "certificateId": "FL21002DL",
+        "approximate": false,
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "evidence": "The unambiguous page-2 map places the South Olive Avenue 1000-foot course in West Palm Beach from the Pilgrim Road area south to Bunker Ranch Road, with the southern endpoint tied to a water-valve cover. Independent geocoding resolves Pilgrim Road and Bunker Ranch Road on South Olive about 303 m apart, nearly the certified distance; this Point is their midpoint. No geographic endpoint coordinates are printed, so endpoint geometry is not justified. The original TEAL seed is substantially north of this map-supported segment on the same avenue.",
+        "streets": [
+          "South Olive Avenue",
+          "Pilgrim Road",
+          "Bunker Ranch Road",
+          "Southern Boulevard"
+        ],
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.780688,
+          50.123714
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2013-047-BDC",
+        "approximate": false,
+        "source": "manual-review",
+        "evidence": "Accepted precise location supplied during location review."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -106.82363,
+            39.19245
+          ],
+          [
+            -106.82025,
+            39.1918
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "CO16009DCR",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 300.1,
+        "evidence": "Ambiguous scan inspected page by page: page 1 is the Bleeker Street map and page 2 the certificate. The map literally prints approximate coordinates at both endpoints: N39.19245 W106.82363 by North 1st Street and N39.19180 W106.82025 by Monarch Street; parsed directly, their 300.1 m separation is close to the certified 304.8 m.",
+        "streets": [
+          "Bleeker Street",
+          "North 1st Street",
+          "Garmisch Street",
+          "Aspen Street",
+          "Monarch Street"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -115.551028,
+            51.192028
+          ],
+          [
+            -115.554528,
+            51.193556
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "AB-2007-029-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 297.2,
+        "evidence": "Map: Compound Road Calibration Course, Banff AB, running along Compound Road between Hawk Ave and Banff Ave. Both endpoints have printed lat/lon (DMS) next to their marks: one near the 'RV & Trailer Drop Off' sign at 51 11 31.3N 115 33 03.7W, the other near the 'RV Park & Ride / Tour Bus Parking' sign at 51 11 36.8N 115 33 16.3W. Parsed directly; distance between them is 297.2m, essentially matching the certified 300m course.",
+        "streets": [
+          "Compound Road",
+          "Hawk Avenue",
+          "Banff Avenue"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -114.1137778,
+            50.9649722
+          ],
+          [
+            -114.1066111,
+            50.9649722
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "AB-2007-087-BDC",
+        "confidence": "high",
+        "certifiedMeters": 500,
+        "measuredMeters": 501.9,
+        "evidence": "Start and finish GPS coordinates are printed on the 98 Ave SW map and parse to the two displayed endpoints; their 501.9 m separation confirms the 500 m certificate.",
+        "streets": [
+          "98 Ave SW"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -114.1108056,
+            50.9649444
+          ],
+          [
+            -114.1066111,
+            50.9649722
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "AB-2007-126-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300,
+        "measuredMeters": 293.8,
+        "evidence": "Start and finish GPS coordinates are printed on the 98 Ave SW map and parse to the two displayed endpoints; their 293.8 m separation is consistent with the 300 m certificate.",
+        "streets": [
+          "98 Ave SW"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -114.0391667,
+            51.0508889
+          ],
+          [
+            -114.0349444,
+            51.0508889
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "AB-2008-095-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300,
+        "measuredMeters": 295.1,
+        "evidence": "Start and finish GPS coordinates are printed on the McDougall Rd NE map and parse to the two displayed endpoints; their 295.1 m separation is consistent with the 300 m certificate.",
+        "streets": [
+          "McDougall Rd NE"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -112.8017222,
+            49.6631111
+          ],
+          [
+            -112.8016944,
+            49.6604722
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "AB-2009-029-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300,
+        "measuredMeters": 293.4,
+        "evidence": "Start and finish GPS coordinates are printed on the 28th Street South map and parse to the two displayed endpoints; their 293.4 m separation is consistent with the 300 m certificate.",
+        "streets": [
+          "28th Street South"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -113.8013611,
+            52.2786944
+          ],
+          [
+            -113.7969722,
+            52.2786944
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "AB-2010-030-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300,
+        "measuredMeters": 298.6,
+        "evidence": "Start and finish GPS coordinates are printed on the 59th Street map and parse to the two displayed endpoints; their 298.6 m separation confirms the 300 m certificate.",
+        "streets": [
+          "59th Street"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -113.4533611,
+            53.5671944
+          ],
+          [
+            -113.4510556,
+            53.5648889
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "AB-2010-066-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300,
+        "measuredMeters": 298.2,
+        "evidence": "Start and finish GPS coordinates are printed on the Northlands Park map and parse to the two displayed endpoints; their 298.2 m separation confirms the 300 m certificate.",
+        "streets": [
+          "Northlands Park"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -112.7503889,
+            51.4668611
+          ],
+          [
+            -112.7546389,
+            51.4668611
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "AB-2016-041-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300,
+        "measuredMeters": 294.4,
+        "evidence": "Start and finish GPS coordinates are printed on the 1 Ave NW map and parse to the two displayed endpoints; their 294.4 m separation is consistent with the 300 m certificate.",
+        "streets": [
+          "1 Ave NW",
+          "20 Street",
+          "21 Street"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -113.4753889,
+            53.5560556
+          ],
+          [
+            -113.4779167,
+            53.55375
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "AB-2017-017-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300,
+        "measuredMeters": 306.0,
+        "evidence": "Start and finish GPS coordinates are printed on the Stadium Road pathway map and parse to the two displayed endpoints; their 306.0 m separation is consistent with the 300 m certificate.",
+        "streets": [
+          "Stadium Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -120.019208,
+            50.651673
+          ],
+          [
+            -120.023357,
+            50.652282
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2009-076-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 300.2,
+        "evidence": "East and west pin GPS coordinates are literally printed on the Dallas Road map and parse to a 300.2m separation.",
+        "streets": [
+          "Dallas Road",
+          "Sonora Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.316398,
+            49.08218
+          ],
+          [
+            -122.316394,
+            49.079486
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2010-113-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 299.6,
+        "evidence": "North and south pin GPS coordinates are literally printed on the Gladwin Road map and measure 299.6m apart.",
+        "streets": [
+          "Gladwin Road",
+          "Clayburn Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.68127,
+            49.2084
+          ],
+          [
+            -122.68613,
+            49.20823
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2011-003-BDC",
+        "confidence": "high",
+        "certifiedMeters": 349.958,
+        "measuredMeters": 353.6,
+        "evidence": "East and west pin GPS coordinates are literally printed on the Airport Way map; their 353.6m straight separation is consistent with the certified 349.958m course.",
+        "streets": [
+          "Airport Way",
+          "Bonson Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.06345,
+            49.04104
+          ],
+          [
+            -123.06756,
+            49.04103
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2011-086-BDC",
+        "confidence": "high",
+        "certifiedMeters": 350.0,
+        "measuredMeters": 299.6,
+        "evidence": "East and west pin GPS coordinates are literally printed on the 21st Avenue map; the apparent 299.6m separation conflicts with the 350m catalog distance and should be visually reviewed before acceptance.",
+        "streets": [
+          "21st Avenue",
+          "56th Street"
+        ],
+        "approximate": true,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -119.4873611,
+            49.8977778
+          ],
+          [
+            -119.4836667,
+            49.8965
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2013-029-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 300.4,
+        "evidence": "Both endpoint coordinates are literally printed in degrees/minutes/seconds on the Atkins Trail map and parse to a 300.4m separation.",
+        "streets": [
+          "Galloping Goose Regional Trail",
+          "Atkins Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -119.4873611,
+            49.8977778
+          ],
+          [
+            -119.4836667,
+            49.8965
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2013-123-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 300.4,
+        "evidence": "Both endpoint coordinates are literally printed in degrees/minutes/seconds on the Weddell Place map and parse to a 300.4m separation.",
+        "streets": [
+          "Weddell Place",
+          "Crowley Avenue"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.3986,
+            48.5219
+          ],
+          [
+            -123.3978,
+            48.5193
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2014-001-PTBA",
+        "confidence": "medium",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 295.0,
+        "evidence": "Approximate north and south endpoint coordinates are literally printed on the Elk/Beaver Lake map; the rounded values measure 295.0m apart, consistent with the certified 300m course.",
+        "streets": [
+          "Elk/Beaver Lake Regional Park trail"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.6448,
+            49.1974
+          ],
+          [
+            -122.64925,
+            49.196366667
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2014-083-BDC",
+        "confidence": "high",
+        "certifiedMeters": 350.0,
+        "measuredMeters": 343.2,
+        "evidence": "Map prints the east and west pin coordinates as 49\u00b011.844'N 122\u00b038.688'W and 49\u00b011.782'N 122\u00b038.955'W; the 343.2 m straight-line check is consistent with the 350 m course along the crescent.",
+        "streets": [
+          "Allard Crescent",
+          "208th Street"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.242116667,
+            49.2492
+          ],
+          [
+            -123.238933333,
+            49.247433333
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2015-008-BDC",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 303.3,
+        "evidence": "Map prints north and south pin coordinates as 49\u00b014.952'N 123\u00b014.527'W and 49\u00b014.846'N 123\u00b014.336'W; the 303.3 m straight-line check is consistent with the 300 m SW Marine Drive course.",
+        "streets": [
+          "SW Marine Drive",
+          "Old Marine Drive",
+          "16th Avenue"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.322713,
+            49.12483
+          ],
+          [
+            -122.318391,
+            49.12344
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2017-089-BDC",
+        "confidence": "high",
+        "certifiedMeters": 349.959,
+        "measuredMeters": 350.4,
+        "evidence": "Map prints the Mission Raceway west and east nail coordinates as 49.124830\u00b0N 122.322713\u00b0W and 49.123440\u00b0N 122.318391\u00b0W; the 350.4 m check matches the 349.959 m course.",
+        "streets": [
+          "Mission Raceway"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -119.486734,
+            49.855448
+          ],
+          [
+            -119.48422,
+            49.852959
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2022-004-PTBA",
+        "confidence": "high",
+        "certifiedMeters": 330.912,
+        "measuredMeters": 330.3,
+        "evidence": "Map prints the Scott Road north and south MAG-nail coordinates as 49.855448N 119.486734W and 49.852959N 119.484220W; the 330.3 m check matches the certificate.",
+        "streets": [
+          "Scott Road",
+          "Swordy Road",
+          "Bechard Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -119.392652,
+            50.047279
+          ],
+          [
+            -119.393343,
+            50.043935
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2022-006-DRY",
+        "confidence": "high",
+        "certifiedMeters": 380.055,
+        "measuredMeters": 375.1,
+        "evidence": "Map prints the Okanagan Rail Trail north and south nail coordinates as 50.047279N 119.392652W and 50.043935N 119.393343W; the 375.1 m check is consistent with the 380.055 m certificate.",
+        "streets": [
+          "Okanagan Rail Trail",
+          "Redecopp Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.69595,
+            48.39835
+          ],
+          [
+            -123.69665,
+            48.39565
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2022-020-PTBA",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 304.6,
+        "evidence": "Map prints Dixon Road north and south endpoint coordinates as approximately 48.39835N 123.69595W and 48.39565N 123.69665W; the 304.6 m check is consistent with the 300 m road course.",
+        "streets": [
+          "Dixon Road",
+          "Kirby Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.40675,
+            48.62112
+          ],
+          [
+            -123.40366,
+            48.61718
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2022-024-DRY",
+        "confidence": "high",
+        "certifiedMeters": 494.465,
+        "measuredMeters": 493.5,
+        "evidence": "Map prints Lochside Drive north and south endpoint coordinates as approximately 48.62112N 123.40675W and 48.61718N 123.40366W; the 493.5 m check matches the 494.465 m certificate.",
+        "streets": [
+          "Lochside Drive",
+          "Amity Drive"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -120.355564,
+            50.694887
+          ],
+          [
+            -120.350916,
+            50.694788
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2022-027-PTBA",
+        "confidence": "high",
+        "certifiedMeters": 333.82,
+        "measuredMeters": 327.6,
+        "evidence": "Map prints Chestnut Avenue west and east MAG-nail coordinates as 50.694887N 120.355564W and 50.694788N 120.350916W; the 327.6 m check is consistent with the 333.820 m course along the street.",
+        "streets": [
+          "Chestnut Avenue",
+          "Fortune Drive",
+          "Schubert Drive"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.56644,
+            48.67207
+          ],
+          [
+            -123.56235,
+            48.67208
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2022-040-PTBA",
+        "confidence": "high",
+        "certifiedMeters": 301.363,
+        "measuredMeters": 300.3,
+        "evidence": "Map prints Sheppard Road west and east endpoint coordinates as approximately 48.672070N 123.56644W and 48.67208N 123.56235W; the 300.3 m check matches the certificate.",
+        "streets": [
+          "Sheppard Road",
+          "Cobble Hill Road",
+          "Trans-Canada Highway"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.31479,
+            48.41939
+          ],
+          [
+            -123.31495,
+            48.41669
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2022-066-BDC",
+        "confidence": "high",
+        "certifiedMeters": 299.998,
+        "measuredMeters": 300.5,
+        "evidence": "Map prints Monterey Avenue north and south endpoint coordinates as approximately 48.41939N 123.31479W and 48.41669N 123.31495W; the 300.5 m check matches the 299.998 m course.",
+        "streets": [
+          "Monterey Avenue",
+          "Tinto Street",
+          "Central Avenue"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -120.141241,
+            50.651164
+          ],
+          [
+            -120.137022,
+            50.651036
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2023-006-LJJL",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 297.8,
+        "evidence": "Map prints west and east MAG-nail GPS coordinates on Blackwell Road; parsed directly.",
+        "streets": [
+          "Blackwell Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -120.168704,
+            50.652882
+          ],
+          [
+            -120.164757,
+            50.651916
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2023-007-LJJL",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 298.3,
+        "evidence": "Map prints west and east MAG-nail GPS coordinates on Clearview Drive; parsed directly.",
+        "streets": [
+          "Clearview Drive"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -119.722547,
+            49.782351
+          ],
+          [
+            -119.718507,
+            49.782129
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2023-009-PTBA",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 291.1,
+        "evidence": "Map prints west and east MAG-nail GPS coordinates on Lake Avenue; parsed directly.",
+        "streets": [
+          "Lake Avenue",
+          "San Clemente Avenue",
+          "13 Street",
+          "14 Street"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -119.575938,
+            49.520534
+          ],
+          [
+            -119.577373,
+            49.518052
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2023-025-PTBA",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 294.8,
+        "evidence": "Shared map prints NP2 and SP2 GPS coordinates for the Kettle Valley Rail Trail course; parsed directly.",
+        "streets": [
+          "Kettle Valley Rail Trail"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -119.574792,
+            49.519715
+          ],
+          [
+            -119.575824,
+            49.517053
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2023-026-PTBA",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 305.2,
+        "evidence": "Shared map prints NP1 and SP1 GPS coordinates for the Lower Bench Road course; parsed directly.",
+        "streets": [
+          "Lower Bench Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -119.264255,
+            50.273069
+          ],
+          [
+            -119.264216,
+            50.27041
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2023-029-PTBA",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 295.7,
+        "evidence": "Map prints north and south MAG-nail GPS coordinates on 25 Street; parsed directly.",
+        "streets": [
+          "25 Street"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -118.198456,
+            50.985451
+          ],
+          [
+            -118.194256,
+            50.986151
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2025-001-PTBA",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 304.1,
+        "evidence": "Map prints west and east MAG-nail GPS coordinates on the Illecillewaet Greenbelt Pathway; parsed directly.",
+        "streets": [
+          "Illecillewaet Greenbelt Pathway"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -119.107269,
+            50.230354
+          ],
+          [
+            -119.107109,
+            50.227656
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2025-003-PTBA",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 300.2,
+        "evidence": "Map prints north and south MAG-nail GPS coordinates on School Road; parsed directly.",
+        "streets": [
+          "School Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -125.0259,
+            49.7067
+          ],
+          [
+            -125.0295,
+            49.7093
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "BC-2025-019-PTBA",
+        "confidence": "medium",
+        "certifiedMeters": 389.753,
+        "measuredMeters": 388.1,
+        "evidence": "Map prints approximate south and north endpoint coordinates for the flagged nails on Condensory Road; the direct coordinate separation agrees with the certified distance.",
+        "streets": [
+          "Condensory Road",
+          "Piercy Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -86.629883333,
+            33.3351
+          ],
+          [
+            -86.627466667,
+            33.333266667
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "AL17049JE",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 303.3,
+        "evidence": "Ambiguous scan inspected page by page: page 1 map literally prints both endpoints as northwest N33 20.106 W86 37.793 and southeast N33 19.996 W86 37.648; normalized from degrees/decimal minutes, and their 303.3 m separation closely matches the certified 300 m.",
+        "streets": [],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -111.907228,
+            33.64028
+          ],
+          [
+            -111.903942,
+            33.640242
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "AZ16013JOE",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 304.2,
+        "evidence": "Scanned map page 1 literally prints Start 33.640280, -111.907228 and Finish 33.640242, -111.903942 on the Bell Road bike-lane line; both decimal coordinates were parsed directly, and their 304.2 m separation agrees with the certified 304.8 m course.",
+        "streets": [
+          "East Bell Road",
+          "Hayden Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -112.615967,
+            33.673859
+          ],
+          [
+            -112.619285,
+            33.673867
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "AZ25022JOE",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 307.0,
+        "evidence": "Map page 2 literally prints both Beardsley Parkway endpoints: Calibration Course Start 33.673859, -112.615967 and Calibration Course Finish 33.673867, -112.619285; their 307.0 m separation closely matches the certified 1,000 ft (304.8 m).",
+        "streets": [
+          "W Beardsley Parkway",
+          "W Desert Vista Boulevard"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.20676,
+            37.771185
+          ],
+          [
+            -122.2033,
+            37.771184
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "CA14052RS",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 304.1,
+        "evidence": "Ambiguous scan inspected page by page: page 1 is the Bancroft Avenue map and page 2 the certificate. The map literally prints coordinates for both endpoints: west PK nail 37.771185, -122.20676 and east PK nail 37.771184, -122.20330; parsed directly, their 304.1 m separation agrees with the certified 304.8 m.",
+        "streets": [
+          "Bancroft Avenue",
+          "50th Avenue",
+          "Vicksburg Avenue"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.90755,
+            37.70857
+          ],
+          [
+            -121.90501,
+            37.7067
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "CA16050RS",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 305.2,
+        "evidence": "Scanned map page 1 literally prints NW-PK-Nail 37.70857, -121.90755 and SE-PK-Nail 37.70670, -121.90501 for the Iron Horse Regional Trail endpoints; both decimal pairs were parsed directly, and their 305.2 m separation agrees with the certified 304.8 m.",
+        "streets": [
+          "Iron Horse Regional Trail",
+          "Scarlett Drive"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.04906,
+            37.96417
+          ],
+          [
+            -122.05009,
+            37.96153
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "CA17039RS",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 307.1,
+        "evidence": "Scanned map page 1 literally prints N-PK-Nail 37.96417, -122.04906 and S-PK-Nail 37.96153, -122.05009 for the Monument Corridor Trail endpoints; both decimal pairs were parsed directly, and their 307.1 m separation agrees with the certified 304.8 m.",
+        "streets": [
+          "Monument Corridor Trail",
+          "Mayette Avenue"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -104.96871,
+            39.65672
+          ],
+          [
+            -104.96515,
+            39.65671
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "CO16003DCR",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 304.8,
+        "evidence": "Ambiguous scan inspected page by page: page 1 is the Floyd Avenue map and page 2 the certificate. The map literally prints approximate coordinates at both endpoints: N39.65672 W104.96871 by Franklin Street and N39.65671 W104.96515 by High Street; parsed directly, their 304.8 m separation exactly matches the certified distance.",
+        "streets": [
+          "Floyd Avenue",
+          "Franklin Street",
+          "Gilpin Street",
+          "Williams Street",
+          "High Street"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -102.223516,
+            40.078775
+          ],
+          [
+            -102.223504,
+            40.076017
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "CO16017DCR",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 306.7,
+        "evidence": "Ambiguous scan inspected page by page: page 1 is the Adams Street map and page 2 the certificate. The map literally prints approximate coordinates at both endpoints: N40.078775 W102.223516 near 3rd Street/Highway 34 and N40.076017 W102.223504 near 6th Street; parsed directly, their 306.7 m separation is consistent with the certified 304.8 m.",
+        "streets": [
+          "Adams Street",
+          "3rd Street",
+          "Highway 34",
+          "4th Street",
+          "5th Street",
+          "6th Street"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -75.18644,
+            38.752034
+          ],
+          [
+            -75.17577,
+            38.755393
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "DE21006JLW",
+        "confidence": "high",
+        "certifiedMeters": 1000,
+        "measuredMeters": 997.8,
+        "evidence": "Certificate page 1 and map page 2 were both inspected. The map literally prints Start Point (Nail) 38.752034N 75.186440W and End Point (Nail) 38.755393N 75.175770W on the Lewes Georgetown Trail near New Road, Nassau Road, Waggoner Avenue, Old Orchard Road, and the bridges serving Nassau Loop and Grape Vine Court. The normalized coordinate strings parsed as decimal degrees, and the endpoint separation is 997.8 m versus the certified 1000 m, so the literal pair is retained as a LineString.",
+        "streets": [
+          "Lewes Georgetown Trail",
+          "New Road",
+          "Nassau Road",
+          "Waggoner Avenue",
+          "Old Orchard Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -83.5261111111,
+            31.4861111111
+          ],
+          [
+            -83.5269444444,
+            31.4891666667
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "GA20001WC",
+        "confidence": "high",
+        "certifiedMeters": 350.543,
+        "measuredMeters": 348.8,
+        "evidence": "Certificate page 1 and map page 2 were both inspected. The Tifton ACL map literally prints both Moore Highway endpoint coordinates: Start at Perimeter Road as 31\u00b029'10\"N 83\u00b031'34\"W and Finish at Zion Hope Road as 31\u00b029'21\"N 83\u00b031'37\"W. Both DMS pairs were parsed directly; their 348.8 m separation closely matches the certified 350.543 m, so the literal pair is retained as a LineString.",
+        "streets": [
+          "Moore Highway",
+          "Perimeter Road",
+          "Zion Hope Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -93.715966667,
+            32.500216667
+          ],
+          [
+            -93.712966667,
+            32.5011
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "LA19001MWC",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 298.0,
+        "evidence": "Start and finish coordinates are literally printed on the map as N32\u00b0 30.013\u2032 W93\u00b0 42.958\u2032 and N32\u00b0 30.066\u2032 W93\u00b0 42.778\u2032; converted directly to decimal degrees. Their 298.0 m separation is consistent with the certified 300 m Stoner course.",
+        "streets": [
+          "Stoner Avenue"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -75.56964,
+            38.36404
+          ],
+          [
+            -75.57124,
+            38.36162
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "MD17030NP",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 303.1,
+        "evidence": "Start and finish GPS coordinates are printed on the St. Albans Drive map next to the nail-and-washer marks; their 303.1 m separation is consistent with the 300 m certified course.",
+        "streets": [
+          "St. Albans Drive",
+          "Glen Avenue",
+          "Beacon Park Drive"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -68.336136,
+            44.348859
+          ],
+          [
+            -68.335735,
+            44.346126
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "ME23001JG",
+        "confidence": "high",
+        "certifiedMeters": 304.923,
+        "measuredMeters": 305.6,
+        "evidence": "Map literally prints North 44.348859\u00b0, -68.336136\u00b0 and South 44.346126\u00b0, -68.335735\u00b0 beside the two nails; parsed directly (305.6 m apart).",
+        "streets": [
+          "Route 102"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -83.0642833,
+            42.6678833
+          ],
+          [
+            -83.0642833,
+            42.66515
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "MI25008MN",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 303.9,
+        "evidence": "North and south endpoint coordinates are printed on the map as degree-plus-decimal-minute notation (42\u00b040.073\u2032 N, 83\u00b003.857\u2032 W and 42\u00b039.909\u2032 N, 83\u00b003.857\u2032 W); parsed directly.",
+        "streets": [
+          "Cedargrove Road",
+          "23 Mile Road",
+          "Southview Drive"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -93.363002,
+            44.851444
+          ],
+          [
+            -93.362506,
+            44.848768
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "MN26005MAB",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 300.1,
+        "evidence": "North and south endpoint GPS coordinates are printed on the map and parse to a 300.1-m separation, consistent with the 300-m certified course.",
+        "streets": [],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -79.1010666667,
+            35.9311333333
+          ],
+          [
+            -79.10035,
+            35.9284333333
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "NC16011DF",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 307.1,
+        "evidence": "Map page 1 prints the concrete-nail and PK-nail coordinates as N35\u00b055.868\u2032 W079\u00b006.064\u2032 and N35\u00b055.706\u2032 W079\u00b006.021\u2032; converted directly from degrees and decimal minutes, they measure 307.1 m apart.",
+        "streets": [
+          "Old Fayetteville Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -78.70161,
+            35.9294818
+          ],
+          [
+            -78.70016,
+            35.92705
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "NC19109NW",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 300.3,
+        "evidence": "Map page 1 literally prints the Start and Finish decimal-degree coordinates on Macon Rd; parsed directly, their 300.3 m separation is consistent with the certified 300.00 m course.",
+        "streets": [
+          "Macon Rd",
+          "Latris Ln"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -74.454263889,
+            39.3605
+          ],
+          [
+            -74.455894444,
+            39.358069444
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "NJ22004NP",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 304.5,
+        "evidence": "The page-2 Bader Field map literally prints the North Point (39\u00b0 21' 37.80\", -74\u00b0 27' 15.35\") and South Point (39\u00b0 21' 29.05\", -74\u00b0 27' 21.22\") coordinates; their parsed endpoints are 304.5 m apart, consistent with the 1,000-foot course.",
+        "streets": [],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -115.301288889,
+            36.318361111
+          ],
+          [
+            -115.3013,
+            36.321108333
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "NV15001DCR",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 305.5,
+        "evidence": "Start and finish GPS coordinates are printed on the Tee Pee Lane map next to PK nails #1 and #2; parsed directly, and their 305.5 m separation is consistent with the 304.8 m certificate.",
+        "streets": [
+          "Tee Pee Lane",
+          "Brent Lane",
+          "Iron Mountain Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -78.9725,
+            42.97148
+          ],
+          [
+            -78.9748,
+            42.97356
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "NY21001JJ",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 297.5,
+        "evidence": "Map page 2 prints WGS-84 GPS locations for the southern terminus (42.97148 N, 78.9725 W) and northern terminus (42.97356 N, 78.9748 W); parsed directly, with 297.5 m separation consistent with the 300 m course.",
+        "streets": [
+          "West River Parkway Bike Path",
+          "Ferry Rd",
+          "Bush Rd"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -73.851213,
+            41.622466
+          ],
+          [
+            -73.849108,
+            41.620163
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "NY23011JG",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 310.2,
+        "evidence": "North and south terminus latitude/longitude values are printed on the Dutchess Rail Trail map and parse directly; their 310.2-m separation is consistent with the 304.8-m course.",
+        "streets": [
+          "Dutchess County Rail Trail",
+          "Diddell Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -74.3797778,
+            41.7220278
+          ],
+          [
+            -74.3773889,
+            41.7240556
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "NY24008DNB",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 300.2,
+        "evidence": "O&W Trail Calibration Course, Ellenville NY: printed GPS Start 41\u00b043'19.3\" -74\u00b022'47.2\" and GPS Finish 41\u00b043'26.6\" -74\u00b022'38.6\" on the course-notes page; parsed directly (DMS without N/S/E/W letters, but sign and location context make North/West unambiguous). Endpoint distance measures 300.2m, matching the certified 300m almost exactly.",
+        "streets": [],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -75.4072605,
+            42.0743863
+          ],
+          [
+            -75.4055185,
+            42.076848
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "NY24038DNB",
+        "confidence": "high",
+        "certifiedMeters": 314.5536,
+        "measuredMeters": 309.2,
+        "evidence": "Start and finish GPS coordinates are printed next to the two nail descriptions on the Laurel Bank Road map and parse directly; their 309.2-m separation is consistent with the 314.5536-m course.",
+        "streets": [
+          "Laurel Bank Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -77.06906,
+            42.14989
+          ],
+          [
+            -77.065424,
+            42.149437
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "NY25010JG",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 304.0,
+        "evidence": "Map prints the two endpoint GPS coordinates for the Hillvue Avenue course; parsed directly.",
+        "streets": [
+          "Hillvue Ave",
+          "Bissell Ave",
+          "Dodge Ave Ext"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -73.967,
+            40.788389
+          ],
+          [
+            -73.96875,
+            40.786
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "NY25048DNB",
+        "confidence": "high",
+        "certifiedMeters": 304.77,
+        "measuredMeters": 303.8,
+        "evidence": "Map prints the north and south endpoint GPS coordinates for the Central Park West course; parsed directly.",
+        "streets": [
+          "Central Park West",
+          "W 87th St",
+          "W 91st St"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -87.411406,
+            41.498289
+          ],
+          [
+            -87.41317,
+            41.500607
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "IN18009TDK",
+        "confidence": "high",
+        "certifiedMeters": 300.0,
+        "measuredMeters": 296.6,
+        "evidence": "Map prints UTM 16T coordinates for both endpoints on the Erie Lackawana Trail: S-endpoint 0465662E 4594156N (approx 577ft N/NW of Phillips Rd, even with #6000 Tumbleweed Ln's roof gable) and N-endpoint 0465516E 4594414N (1ft north of the Turkey Creek Trail juncture). Converted to WGS84, their 296.6m separation is consistent with the certified 300m course.",
+        "streets": [
+          "Erie Lackawanna Trail",
+          "Turkey Creek Trail",
+          "Phillips Road"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -70.0528406,
+            12.5442275
+          ],
+          [
+            -70.0527303,
+            12.5414389
+          ]
+        ]
+      },
+      "properties": {
+        "certificateId": "ARU-2025-001-BDC",
+        "country": "AW",
+        "confidence": "high",
+        "certifiedMeters": 300,
+        "measuredMeters": 310.3,
+        "evidence": "Start and finish GPS coordinates are printed directly in the map's GPS position table for points A and B; their 310.3 m straight-line separation is within tolerance of the 300 m certified course.",
+        "streets": [
+          "Italiestraat"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0,
+          0
+        ]
+      },
+      "properties": {
+        "certificateId": "ME-2025-015-LJJL",
+        "city": "Lubec",
+        "state": "ME",
+        "country": "US",
+        "evidence": "Accepted catalog correction. The certificate map is titled 'Lubec ME Pleasant St 300m Calibration Course' and shows the course at the US Customs and Border Protection crossing on Pleasant St in Lubec, Maine; the acroad.ca catalog's default 'CA' country is incorrect for this US course."
       }
     }
   ]
