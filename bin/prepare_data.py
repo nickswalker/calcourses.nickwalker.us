@@ -16,6 +16,24 @@ def extract_url_from_anchor(html_string):
     return None
 
 
+def parse_certification_year(course_id):
+    """Derive the certification year from a course/cert ID.
+
+    Canadian IDs look like ON-2025-017-LJJL or CAN-2025-157 (4-digit year).
+    US IDs look like AK13003FW / BAH13001GAN (2-digit year after the leading
+    letters, e.g. 13 -> 2013).
+    """
+    if not course_id:
+        return None
+    m = re.search(r'-(\d{4})-', course_id) or re.match(r'[A-Za-z]+-(\d{4})', course_id)
+    if m:
+        return int(m.group(1))
+    m = re.match(r'[A-Za-z]+(\d{2})\d{3}', course_id)
+    if m:
+        return 2000 + int(m.group(1))
+    return None
+
+
 def remove_calibration_references(text):
     # (?:^|\s+) allows matching at start of string or after whitespace
     # Covers: "Calibration Course", "Calibration", "Cal. Course", "Cal.", "CRSE.", etc.
@@ -25,6 +43,21 @@ def remove_calibration_references(text):
 
     # Handle (Calibration course) in parentheses
     result = re.sub(r'\s*\(calibration\s+courses?\)', '', result, flags=re.IGNORECASE)
+
+    # French calibration terms (Quebec course names). Accent-insensitive:
+    # etalon(s), etalonnage, base/parcours etalon, calibrage. Also consumes a
+    # leading "parcours" and French connective article ("d'", "de la", "du",
+    # ...) on either side so e.g. "Parcours d'etalonnage de X" -> "X".
+    connective = r"(?:d['’]|de\s+l['’]|de\s+la\s+|de\s+|du\s+|des\s+)"
+    french_pattern = (
+        r'(?:^|\s+)-?\s*'
+        r'(?:parcours\s+)?'
+        + connective + r'?'
+        + r'(?:base\s+)?'
+        + r'(?:[ée]talonnage|[ée]talons?|calibrage)'
+        + r'(?:\s+' + connective + r')?'
+    )
+    result = re.sub(french_pattern, '', result, flags=re.IGNORECASE)
 
     return result
 
@@ -145,7 +178,7 @@ def remove_unnecessary_periods(text):
     return result
 
 
-def tsv_to_geojson(input_file):
+def tsv_to_geojson(input_file, default_country="US"):
     geojson = {
         "type": "FeatureCollection",
         "features": []
@@ -170,7 +203,9 @@ def tsv_to_geojson(input_file):
                 name_abbreviated = standardize_road_types(name_abbreviated)
                 # Clean up any extra spaces
                 name_abbreviated = re.sub(r'\s+', ' ', name_abbreviated).strip()
-                # Remove trailing stray punctuation (e.g. semicolons from malformed source data)
+                # Remove leading/trailing stray punctuation (e.g. a comma left
+                # after stripping a leading "Etalons de 300 m," prefix)
+                name_abbreviated = re.sub(r'^[;,\s]+', '', name_abbreviated)
                 name_abbreviated = re.sub(r'[;,\s]+$', '', name_abbreviated)
                 name_abbreviated = name_abbreviated.rstrip('.')
                 feature = {
@@ -192,7 +227,9 @@ def tsv_to_geojson(input_file):
                         "units": row['Units'].lower(),
                         "measurer": row['Measurer'],
                         "certificateLink": extract_url_from_anchor(row['Certificate URL']),
-                        "approximate": row['Color'] == 'PURPLE'
+                        "approximate": row['Color'] == 'PURPLE',
+                        "country": row.get('Country', '').strip() or default_country,
+                        "year": parse_certification_year(row['CourseID'])
                     }
                 }
 
@@ -311,7 +348,8 @@ def patch_geojson_with_additional_data(original_geojson, additional_data_file):
 
 
 def main():
-    input_file = "data/calibration_courses.tsv"
+    input_file = "data/usatf_calibration_courses.tsv"
+    canada_input_file = "data/acroad_calibration_courses.tsv"
     additional_data_file = "data/additional_data.geojson"
     output_file = "data/calibration_courses.geojson"
     line_output_file = "data/calibration_course_lines.geojson"
@@ -320,7 +358,21 @@ def main():
         print(f"Error: Input file '{input_file}' not found.")
         return
 
-    geojson_data = tsv_to_geojson(input_file)
+    geojson_data = tsv_to_geojson(input_file, default_country="US")
+    us_count = len(geojson_data["features"])
+    print(f"Loaded {us_count} US features from '{input_file}'.")
+
+    # Merge in Athletics Canada calibration courses (separate file so the US
+    # Google Sheet pull can overwrite usatf_calibration_courses.tsv independently).
+    if Path(canada_input_file).exists():
+        ca_geojson = tsv_to_geojson(canada_input_file, default_country="CA")
+        geojson_data["features"].extend(ca_geojson["features"])
+        geojson_data["features"].sort(key=lambda x: x["properties"]["certificateId"])
+        print(f"Loaded {len(ca_geojson['features'])} Canadian features from "
+              f"'{canada_input_file}'.")
+    else:
+        print(f"Note: Canadian data file '{canada_input_file}' not found. "
+              f"Continuing without it.")
 
     if len(geojson_data["features"]) == 0:
         print(f"Error: No valid features found in '{input_file}'.")
