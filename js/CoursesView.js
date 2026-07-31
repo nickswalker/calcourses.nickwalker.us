@@ -96,7 +96,10 @@ function reviewFeatureToDescription(feature) {
     const original = typeof properties.originalCoordinates === 'string'
         ? JSON.parse(properties.originalCoordinates)
         : properties.originalCoordinates;
-    const displacement = formatDisplacement(properties.distanceMeters);
+    const hasOriginal = Array.isArray(original) && original.length === 2;
+    const displacement = hasOriginal
+        ? `moved ${formatDisplacement(properties.distanceMeters)}`
+        : 'no imported location';
     const proposedLabel = feature.geometry.type === 'Point' ? 'Proposed' : 'Line midpoint';
     const status = properties.reviewStatus === 'accepted' ? 'Accepted' : 'Pending review';
     return `
@@ -104,8 +107,8 @@ function reviewFeatureToDescription(feature) {
       <div class="d-flex flex-column gap-1">
         <a href="${properties.certificateLink}" target="_blank">${properties.certificateId}</a>
         <span>${escapeHtml(properties.city)}, ${escapeHtml(properties.state)}</span>
-        <span><strong>${status}</strong> · ${escapeHtml(properties.confidence)} confidence · moved ${displacement}</span>
-        <span>Original: ${original[1].toFixed(6)}, ${original[0].toFixed(6)}</span>
+        <span><strong>${status}</strong> · ${escapeHtml(properties.confidence)} confidence · ${displacement}</span>
+        ${hasOriginal ? `<span>Original: ${original[1].toFixed(6)}, ${original[0].toFixed(6)}</span>` : ''}
         <span>${proposedLabel}: ${proposed[1].toFixed(6)}, ${proposed[0].toFixed(6)}</span>
         <p class="mb-0 mt-1">${escapeHtml(properties.evidence)}</p>
       </div>`;
@@ -473,6 +476,31 @@ export class CoursesView extends LitElement {
             this.calibrationCourseLines = courseLinesData.features;
             this.reviewData = reviewData.features;
 
+            // Some approximate catalog rows have no imported coordinate and are therefore
+            // absent from calibration_courses.geojson. Once map review finds a candidate,
+            // include a lightweight course row so the review table can display and filter it.
+            if (this.reviewMode) {
+                const courseIds = new Set(this.calibrationCourses.map(
+                    feature => feature.properties.certificateId
+                ));
+                const reviewOnlyCourses = this.reviewData
+                    .filter(feature => feature.properties.role === 'review')
+                    .filter(feature => !courseIds.has(feature.properties.certificateId))
+                    .map(feature => ({
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: feature.properties.reviewCoordinates,
+                        },
+                        properties: {
+                            ...feature.properties,
+                            nameAbbreviated: feature.properties.name,
+                            approximate: true,
+                        },
+                    }));
+                this.calibrationCourses.push(...reviewOnlyCourses);
+            }
+
             this.processData();
         } catch (error) {
             console.error('Error loading calibration courses data:', error);
@@ -631,6 +659,22 @@ export class CoursesView extends LitElement {
                 }
             });
             this.map.addLayer({
+                id: 'location-review-originals',
+                type: 'circle',
+                source: 'location-review',
+                filter: ['==', ['get', 'role'], 'original-marker'],
+                paint: {
+                    'circle-color': '#AB2129',
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 4, 10, 7],
+                    'circle-opacity': ['case',
+                        ['==', ['get', 'originalApproximate'], true], 0, 1],
+                    'circle-stroke-color': '#AB2129',
+                    'circle-stroke-width': ['case',
+                        ['==', ['get', 'originalApproximate'], true], 2, 0],
+                    'circle-stroke-opacity': 1
+                }
+            });
+            this.map.addLayer({
                 id: 'location-review-proposal-lines',
                 type: 'line',
                 source: 'location-review',
@@ -645,12 +689,43 @@ export class CoursesView extends LitElement {
                 id: 'location-review-proposals',
                 type: 'circle',
                 source: 'location-review',
-                filter: ['==', ['get', 'role'], 'review'],
+                filter: ['any',
+                    ['==', ['get', 'role'], 'review'],
+                    ['==', ['get', 'role'], 'review-marker']],
                 paint: {
                     'circle-color': ['match', ['get', 'reviewStatus'], 'accepted', '#198754', '#087EA4'],
                     'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 4, 10, 7],
-                    'circle-stroke-color': '#FFFFFF',
-                    'circle-stroke-width': 2
+                    'circle-opacity': ['case',
+                        ['==', ['get', 'proposedApproximate'], true], 0, 1],
+                    'circle-stroke-color': ['match', ['get', 'reviewStatus'], 'accepted', '#198754', '#087EA4'],
+                    'circle-stroke-width': ['case',
+                        ['==', ['get', 'proposedApproximate'], true], 2, 0],
+                    'circle-stroke-opacity': 1
+                }
+            });
+            this.map.addLayer({
+                id: 'location-review-expired-labels',
+                type: 'symbol',
+                source: 'location-review',
+                filter: ['all',
+                    ['any',
+                        ['==', ['get', 'role'], 'review'],
+                        ['==', ['get', 'role'], 'review-marker']],
+                    ['==', ['geometry-type'], 'Point'],
+                    ['==', ['get', 'expired'], true]],
+                layout: {
+                    'text-field': 'X',
+                    'text-line-height': 1,
+                    'text-allow-overlap': true,
+                    'text-ignore-placement': true,
+                    'text-font': ['Noto Sans Bold'],
+                    'text-size': ['interpolate', ['linear'], ['zoom'], 2, 7, 10, 12]
+                },
+                paint: {
+                    'text-color': ['case',
+                        ['==', ['get', 'proposedApproximate'], true],
+                        ['match', ['get', 'reviewStatus'], 'accepted', '#198754', '#087EA4'],
+                        '#FFFFFF']
                 }
             });
 
@@ -932,6 +1007,36 @@ export class CoursesView extends LitElement {
                         cell.getRow().getData().properties.certificateId
                     ) === 'accepted' ? 'Accepted' : 'Proposed'
                 }, {
+                    title: "Pre",
+                    field: "properties.certificateId",
+                    sorter: false,
+                    headerSort: false,
+                    formatter: (cell) => {
+                        const review = this.getReviewFeature(
+                            cell.getRow().getData().properties.certificateId
+                        );
+                        const expired = Boolean(cell.getRow().getData().properties.expired);
+                        return review?.properties.originalCoordinates
+                            ? `<span class='review-key ${review.properties.originalApproximate ? 'review-key-original-approximate review-key-approximate' : 'review-key-original'} ${expired ? 'review-key-expired' : ''}' title='Original ${review.properties.originalApproximate ? 'approximate' : 'precise'} location${expired ? ' (expired)' : ''}' aria-label='Original ${review.properties.originalApproximate ? 'approximate' : 'precise'} location${expired ? ' (expired)' : ''}'></span>`
+                            : "";
+                    }
+                }, {
+                    title: "Post",
+                    field: "properties.certificateId",
+                    sorter: false,
+                    headerSort: false,
+                    formatter: (cell) => {
+                        const review = this.getReviewFeature(
+                            cell.getRow().getData().properties.certificateId
+                        );
+                        if (!review) return "";
+                        const accepted = review.properties.reviewStatus === 'accepted';
+                        const approximate = Boolean(review.properties.proposedApproximate);
+                        const expired = Boolean(cell.getRow().getData().properties.expired);
+                        const label = `${accepted ? 'Accepted' : 'Proposed'} ${approximate ? 'approximate' : 'precise'} location${expired ? ' (expired)' : ''}`;
+                        return `<span class='review-key ${accepted ? 'review-key-accepted' : 'review-key-proposed'} ${approximate ? 'review-key-approximate' : ''} ${expired ? 'review-key-expired' : ''}' title='${label}' aria-label='${label}'></span>`;
+                    }
+                }, {
                     title: "Displacement",
                     field: "properties.certificateId",
                     sorter: (_a, _b, aRow, bRow) => {
@@ -1182,6 +1287,9 @@ export class CoursesView extends LitElement {
         const reviewIds = new Set(this.reviewData
             .filter(feature => feature.properties.role === 'review')
             .map(feature => feature.properties.certificateId));
+        const coursesById = new Map(this.calibrationCourses.map(feature =>
+            [feature.properties.certificateId, feature]
+        ));
         const mapRowIds = this.reviewMode
             ? visibleRowIds.filter(certificateId => reviewIds.has(certificateId))
             : visibleRowIds;
@@ -1190,6 +1298,9 @@ export class CoursesView extends LitElement {
             mapRowIds.includes(feature.properties.certificateId)
         );
         this.filteredCourses = filteredFeatures.slice();
+        const mapPointFeatures = this.reviewMode
+            ? filteredFeatures.filter(feature => !reviewIds.has(feature.properties.certificateId))
+            : filteredFeatures;
 
 
         const filteredLineFeatures = this.calibrationCourseLines.filter(feature =>
@@ -1200,7 +1311,7 @@ export class CoursesView extends LitElement {
         ["course-points", "course-points-overview"].forEach(sourceId => {
             this.map.getSource(sourceId).setData({
                 type: 'FeatureCollection',
-                features: filteredFeatures
+                features: mapPointFeatures
             });
         });
         this.map.getSource("course-lines").setData({
@@ -1210,7 +1321,18 @@ export class CoursesView extends LitElement {
         this.map.getSource('location-review')?.setData({
             type: 'FeatureCollection',
             features: this.reviewMode
-                ? this.reviewData.filter(feature => mapRowIds.includes(feature.properties.certificateId))
+                ? this.reviewData
+                    .filter(feature => mapRowIds.includes(feature.properties.certificateId))
+                    .map(feature => {
+                        const course = coursesById.get(feature.properties.certificateId);
+                        return {
+                            ...feature,
+                            properties: {
+                                ...feature.properties,
+                                expired: Boolean(course?.properties.expired),
+                            },
+                        };
+                    })
                 : []
         });
     }
@@ -1487,24 +1609,31 @@ export class CoursesView extends LitElement {
                 ${this.reviewMode ? html`
                   <div class="alert alert-info py-2 mb-2" role="status">
                     Reviewing ${this.reviewData.filter(feature => feature.properties.role === 'review' && feature.properties.reviewStatus === 'pending').length} proposed candidates and ${this.reviewData.filter(feature => feature.properties.role === 'review' && feature.properties.reviewStatus === 'accepted').length} accepted records:
-                    <span class="review-key review-key-original"></span> original location,
+                    <span class="review-key review-key-original"></span> original precise,
+                    <span class="review-key review-key-original-approximate"></span> original approximate,
                     <span class="review-line"></span> displacement. Click a point or line for evidence.
                     <span class="review-status-filters">
                       <button type="button" class="map-legend-toggle" aria-pressed=${this.showProposedReviews}
                               title="Show or hide proposed locations" @click=${() => this.toggleLegendItem('proposed')}>
-                        <span class="review-key review-key-proposed"></span>Proposed
+                        <span class="review-key review-key-proposed"></span>Proposed precise
+                        <span class="review-key review-key-proposed review-key-approximate"></span>Proposed approximate
                       </button>
                       <button type="button" class="map-legend-toggle" aria-pressed=${this.showAcceptedReviews}
                               title="Show or hide accepted locations" @click=${() => this.toggleLegendItem('accepted')}>
-                        <span class="review-key review-key-accepted"></span>Accepted
+                        <span class="review-key review-key-accepted"></span>Accepted precise
+                        <span class="review-key review-key-accepted review-key-approximate"></span>Accepted approximate
                       </button>
                     </span>
                   </div>
                   <style>
-                    .review-key { display:inline-block; width:12px; height:12px; border-radius:50%; vertical-align:-1px; margin-left:.4rem; }
-                    .review-key-original { background-color:#AB2129; }
-                    .review-key-proposed { background:#087EA4; border:2px solid white; box-shadow:0 0 0 1px #087EA4; }
-                    .review-key-accepted { background:#198754; border:2px solid white; box-shadow:0 0 0 1px #198754; }
+                    .review-key { display:inline-block; position:relative; width:8px; height:8px; border-radius:50%; vertical-align:1px; margin-left:.4rem; }
+                    .review-key-original, .review-key-original-approximate { --review-color:#AB2129; }
+                    .review-key-original { background-color:var(--review-color); }
+                    .review-key-proposed { --review-color:#087EA4; background-color:var(--review-color); }
+                    .review-key-accepted { --review-color:#198754; background-color:var(--review-color); }
+                    .review-key-approximate { width:12px; height:12px; vertical-align:-1px; background:transparent; border:2px solid var(--review-color); }
+                    .review-key-expired::before { content:'X'; position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); color:#fff; font-size:7px; font-weight:700; line-height:1; }
+                    .review-key-expired.review-key-approximate::before { color:var(--review-color); font-size:9px; }
                     .review-line { display:inline-block; width:22px; border-top:2px dashed #F59E0B; vertical-align:4px; margin-left:.4rem; }
                     .review-status-filters { display:inline-flex; gap:.35rem; margin-left:.75rem; }
                   </style>` : ''}
