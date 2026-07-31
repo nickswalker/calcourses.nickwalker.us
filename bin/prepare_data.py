@@ -226,6 +226,7 @@ def tsv_to_geojson(input_file, default_country="US"):
                                 float(row['Latitude'])
                             ]
                         },
+                        "sourceApproximate": row['Color'] == 'PURPLE',
                         "name": name,
                         "nameAbbreviated": name_abbreviated,
                         "city": row['City'],
@@ -249,6 +250,24 @@ def tsv_to_geojson(input_file, default_country="US"):
     # Sort features by certificateId
     geojson["features"].sort(key=lambda x: x["properties"]["certificateId"])
     return geojson
+
+
+PUBLISHED_ADDITIONAL_PROPERTIES = {
+    "approximate",
+    "certificateLink",
+    "city",
+    "country",
+    "state",
+}
+
+
+def published_additional_properties(properties):
+    """Return override fields needed by the public course dataset."""
+    return {
+        key: value
+        for key, value in properties.items()
+        if key in PUBLISHED_ADDITIONAL_PROPERTIES
+    }
 
 
 def patch_geojson_with_additional_data(original_geojson, additional_data_file):
@@ -312,7 +331,8 @@ def patch_geojson_with_additional_data(original_geojson, additional_data_file):
 
                 # Update with any additional properties
                 if 'properties' in additional_feature:
-                    for prop_key, prop_value in additional_feature['properties'].items():
+                    for prop_key, prop_value in published_additional_properties(
+                            additional_feature['properties']).items():
                         line_feature['properties'][prop_key] = prop_value
 
                 line_geojson['features'].append(line_feature)
@@ -325,7 +345,8 @@ def patch_geojson_with_additional_data(original_geojson, additional_data_file):
 
             # Always update properties
             if 'properties' in additional_feature:
-                for prop_key, prop_value in additional_feature['properties'].items():
+                for prop_key, prop_value in published_additional_properties(
+                        additional_feature['properties']).items():
                     feature['properties'][prop_key] = prop_value
                 print(f"Updated properties for certificateId: {cert_id}")
 
@@ -337,16 +358,24 @@ def patch_geojson_with_additional_data(original_geojson, additional_data_file):
             continue
 
         geom_type = feature.get('geometry', {}).get('type')
+        published_feature = {
+            "type": "Feature",
+            "geometry": feature.get("geometry"),
+            "properties": {
+                "certificateId": cert_id,
+                **published_additional_properties(feature.get("properties", {})),
+            },
+        }
 
         # Add LineString features to the line collection
         if geom_type == 'LineString':
-            line_geojson['features'].append(feature)
+            line_geojson['features'].append(published_feature)
             print(f"Added new LineString feature with certificateId: {cert_id} to line collection")
         # Add other types to the original collection
         elif ('geometry' in feature and
               feature['geometry'].get('type') and
               'coordinates' in feature['geometry']):
-            original_geojson['features'].append(feature)
+            original_geojson['features'].append(published_feature)
             print(f"Added new feature with certificateId: {cert_id} to original collection")
         else:
             print(f"Skipped adding new feature with certificateId: {cert_id} - incomplete geometry")
