@@ -69,6 +69,7 @@ function featureToDescription(feature, line) {
 const COUNTRY_NAMES = {
     US: "United States",
     CA: "Canada",
+    AW: "Aruba",
     BS: "Bahamas",
     BM: "Bermuda",
     IN: "India",

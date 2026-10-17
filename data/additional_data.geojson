@@ -2411,6 +2411,29 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -69.8853535,
+          12.45093
+        ]
+      },
+      "properties": {
+        "certificateId": "ARU-2024-019-LJJL",
+        "country": "AW",
+        "approximate": false,
+        "confidence": "high",
+        "certifiedMeters": 300,
+        "measuredMeters": 308.1,
+        "evidence": "Map prints positions for A, B and a utility pole 21 m west of A at the Aruba Golf Club Sanicolas entrance (San Nicolas, Aruba). Printed A longitude -69.9013766 is a typo (1.79 km from B, inconsistent with the pole and the 300 m course), so this Point is the midpoint of printed B (12.4522897, -69.8850816) and the printed utility pole (12.4495702, -69.8856254), 308.1 m apart. Source TSV seed geocoded 'Sanicolas' to Mexico.",
+        "streets": [
+          "Golfweg"
+        ],
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           0,
           0
         ]
@@ -2421,6 +2444,50 @@
         "state": "ME",
         "country": "US",
         "evidence": "Accepted catalog correction. The certificate map is titled 'Lubec ME Pleasant St 300m Calibration Course' and shows the course at the US Customs and Border Protection crossing on Pleasant St in Lubec, Maine; the acroad.ca catalog's default 'CA' country is incorrect for this US course."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.69287323320435,
+          35.807650241637205
+        ]
+      },
+      "properties": {
+        "certificateId": "AR18018WJT",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "measuredMeters": 382.8,
+        "evidence": "Map: Browns Lane Access Calibration Course, Jonesboro AR - straight course between a West Point (light pole in front of 'DHS office') and East Point near the Enterprise Dr intersection. Geocoding 'Browns Lane Access Road, Jonesboro, AR' returned a named segment 'Browns at DHS' (35.8077569,-90.6932253) matching the map's DHS-office landmark, and 'Enterprise Drive, Jonesboro, AR' geocoded to 35.8110133,-90.6918472; the two bounding landmarks sit 382.8m apart, consistent with the 304.8m course. Accepted at the DHS-office landmark point (human-reviewed pin) rather than the computed bounding midpoint.",
+        "streets": [
+          "Browns Lane Access",
+          "Enterprise Dr"
+        ],
+        "approximate": true,
+        "source": "certificate-map"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.74537,
+          36.173896
+        ]
+      },
+      "properties": {
+        "certificateId": "NC19020DF",
+        "confidence": "high",
+        "certifiedMeters": 304.8,
+        "evidence": "Map: 1000ft calibration course along Southshore Rd, Greensboro NC; only one street named (nail measurements reference nearby stop sign, street sign and electrical fixtures, no second cross street). Single unique geocode match for 'Southshore Rd, Greensboro, NC' (zip 27214) used as centroid. Human-reviewed and pinned at 36.173896,-79.745370, ~35m from the geocoded centroid; marked precise by explicit reviewer override rather than the standard endpoint-measurement policy.",
+        "streets": [
+          "Southshore Rd"
+        ],
+        "approximate": false,
+        "source": "certificate-map"
       }
     }
   ]

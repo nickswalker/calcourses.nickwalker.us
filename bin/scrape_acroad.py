@@ -3,7 +3,8 @@
 that shares the US usatf_calibration_courses.tsv column schema so that
 bin/prepare_data.py can consume both through the same code path.
 
-Part 1b geocodes each unique "City, Province, Canada" via Nominatim (1 req/sec),
+Part 1b geocodes each unique "City, Province, Canada" (or "City, Country" for
+international certs) via Nominatim (1 req/sec),
 caching results in data/acroad_city_geocode_cache.json.
 """
 import json
@@ -48,6 +49,20 @@ CITY_PROVINCE_FALLBACK = {
     "montréal": "QC", "acton vale": "QC", "calgary": "AB", "ottawa": "ON",
     "edmonton": "AB",
 }
+
+# International certs carry a country prefix in their ID (e.g. ARU-2024-019-LJJL)
+# but often omit the country from the location cell. Without it, Nominatim
+# matches bare city names anywhere (e.g. "Sanicolas" landed in Mexico).
+# Maps prefix -> (country name, country code for Nominatim's countrycodes
+# filter). OSM tags Aruba as part of the Kingdom of the Netherlands ("nl"), so
+# "aw" returns nothing; the "Aruba" in the query text keeps results on-island.
+COUNTRY_BY_CERT_PREFIX = {
+    "ARU": ("Aruba", "nl"), "BAH": ("Bahamas", "bs"),
+    "CRC": ("Costa Rica", "cr"), "DOM": ("Dominican Republic", "do"),
+}
+
+# Misspelled/truncated city names in the source, keyed by lowercase.
+CITY_SPELLING_FIXES = {"sanicolas": "San Nicolas", "san jos": "San José"}
 
 # Accent- and case-insensitive calibration matcher. Covers: calibration,
 # etalon/etalons/etalonnage, calibrage, and standalone "cal"/"cal.".
@@ -146,6 +161,8 @@ def parse_location(loc_text):
         return city, code, PROVINCES[code]
     # Missing province: try to infer from a known-city fallback.
     city = parts[0] if parts else loc_text
+    if len(parts) == 1:
+        loc_text = city = CITY_SPELLING_FIXES.get(city.lower(), city)
     code = CITY_PROVINCE_FALLBACK.get(city.lower())
     if code:
         return city, code, PROVINCES[code]
@@ -187,12 +204,20 @@ def save_cache(cache):
     )
 
 
-def geocode(query, cache):
+def country_for_cert(cert_id):
+    """Return (country name, ISO code) from an international cert ID prefix."""
+    return COUNTRY_BY_CERT_PREFIX.get(cert_id.split("-")[0], (None, None))
+
+
+def geocode(query, cache, country_code=None):
     """Geocode a location string via Nominatim, caching results (incl. misses)."""
     if query in cache:
         entry = cache[query]
         return (entry.get("lat"), entry.get("lon")) if entry else (None, None)
-    params = urllib.parse.urlencode({"q": query, "format": "json", "limit": 1})
+    params = {"q": query, "format": "json", "limit": 1}
+    if country_code:
+        params["countrycodes"] = country_code
+    params = urllib.parse.urlencode(params)
     req = urllib.request.Request(
         f"{NOMINATIM_URL}?{params}", headers={"User-Agent": USER_AGENT}
     )
@@ -277,15 +302,21 @@ def main():
     cache = load_cache()
     geocode_failures = []
     unique_queries = {}
+    query_country_codes = {}
     for c in calibration:
+        country, country_code = country_for_cert(c["CourseID"])
         if c["Full state"]:
             query = f"{c['City']}, {c['Full state']}, Canada"
+        elif country and country.lower() not in c["City"].lower():
+            query = f"{c['City']}, {country}"
         else:
             query = c["City"]  # international / unresolved province
         unique_queries.setdefault(query, []).append(c)
+        if country_code:
+            query_country_codes[query] = country_code
     print(f"Geocoding {len(unique_queries)} unique locations ...")
     for i, (query, entries) in enumerate(sorted(unique_queries.items())):
-        lat, lon = geocode(query, cache)
+        lat, lon = geocode(query, cache, query_country_codes.get(query))
         if i % 20 == 0:
             save_cache(cache)  # checkpoint so a crash doesn't lose progress
         for c in entries:
